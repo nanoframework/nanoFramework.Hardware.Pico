@@ -26,6 +26,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         private NativeEventDispatcher _irqDispatcher;
         private PioInterruptEventHandler _interruptCallbacks;
 
+        /// <summary>Initializes a new instance of the <see cref="PioBlock"/> class.</summary>
         internal PioBlock(int index)
         {
             _index = index;

@@ -15,14 +15,23 @@ namespace nanoFramework.Hardware.Pico.Pio
     /// </summary>
     public static class PioEncoder
     {
+        /// <summary>Base opcode for the JMP instruction.</summary>
         internal const int OpJmp = 0x0000;
+        /// <summary>Base opcode for the WAIT instruction.</summary>
         internal const int OpWait = 0x2000;
+        /// <summary>Base opcode for the IN instruction.</summary>
         internal const int OpIn = 0x4000;
+        /// <summary>Base opcode for the OUT instruction.</summary>
         internal const int OpOut = 0x6000;
+        /// <summary>Base opcode for the PUSH instruction.</summary>
         internal const int OpPush = 0x8000;
+        /// <summary>Base opcode for the PULL instruction.</summary>
         internal const int OpPull = 0x8080;
+        /// <summary>Base opcode for the MOV instruction.</summary>
         internal const int OpMov = 0xA000;
+        /// <summary>Base opcode for the IRQ instruction.</summary>
         internal const int OpIrq = 0xC000;
+        /// <summary>Base opcode for the SET instruction.</summary>
         internal const int OpSet = 0xE000;
 
         /// <summary>JMP &lt;cond&gt; &lt;addr&gt;. Address is an absolute program offset 0..31.</summary>

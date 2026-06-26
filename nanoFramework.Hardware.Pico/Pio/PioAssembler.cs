@@ -486,7 +486,9 @@ namespace nanoFramework.Hardware.Pico.Pio
             return index;
         }
 
-        // PioInstructionRef calls back here, by index, to attach delay / side-set to a slot.
+        /// <summary>Attaches a post-instruction delay to a slot. Called back from <see cref="PioInstructionRef"/> by index.</summary>
+        /// <param name="index">The instruction slot index.</param>
+        /// <param name="cycles">The number of delay cycles to attach.</param>
         internal void ApplyDelay(int index, int cycles)
         {
             if (index < MaxInstructions)
@@ -495,6 +497,9 @@ namespace nanoFramework.Hardware.Pico.Pio
             }
         }
 
+        /// <summary>Attaches a side-set value to a slot. Called back from <see cref="PioInstructionRef"/> by index.</summary>
+        /// <param name="index">The instruction slot index.</param>
+        /// <param name="value">The side-set value to drive.</param>
         internal void ApplySide(int index, int value)
         {
             if (index < MaxInstructions)

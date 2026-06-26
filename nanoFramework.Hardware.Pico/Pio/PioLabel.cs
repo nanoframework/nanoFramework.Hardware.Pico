@@ -12,15 +12,18 @@ namespace nanoFramework.Hardware.Pico.Pio
     /// </summary>
     public sealed class PioLabel
     {
+        /// <summary>Initializes a new instance of the <see cref="PioLabel"/> class.</summary>
+        /// <param name="id">The unique label identifier.</param>
         internal PioLabel(int id)
         {
             Id = id;
             Address = -1;
         }
 
+        /// <summary>Gets the unique identifier assigned to this label.</summary>
         internal int Id { get; }
 
-        /// <summary>Program offset where the label was marked, or -1 if not yet bound.</summary>
+        /// <summary>Gets or sets the program offset where the label was marked, or -1 if not yet bound.</summary>
         internal int Address { get; set; }
 
         /// <summary>True once the label has been placed in the instruction stream.</summary>

@@ -20,6 +20,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         private bool _disposed;
         private bool _enabled;
 
+        /// <summary>Initializes a new instance of the <see cref="PioStateMachine"/> class.</summary>
         internal PioStateMachine(PioBlock block, int sm)
         {
             _block = block;

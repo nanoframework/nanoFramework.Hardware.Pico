@@ -65,6 +65,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <summary>Minimum PIO version required to run this program.</summary>
         public PioVersion Version { get; private set; }
 
+        /// <summary>Initializes a new instance of the <see cref="PioProgram"/> class.</summary>
         internal PioProgram(
             ushort[] instructions,
             int wrap,

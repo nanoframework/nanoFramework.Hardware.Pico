@@ -20,6 +20,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         private readonly PioAssembler _owner;
         private readonly int _index;
 
+        /// <summary>Initializes a new instance of the <see cref="PioInstructionRef"/> class.</summary>
         internal PioInstructionRef(PioAssembler owner, int index)
         {
             _owner = owner;
