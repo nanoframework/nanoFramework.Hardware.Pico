@@ -100,8 +100,9 @@ namespace nanoFramework.Hardware.Pico.Pio
 
         /// <summary>
         /// Wraps an externally produced opcode array (for example, the output of the
-        /// stand-alone <c>pioasm</c> tool) together with its metadata, so precompiled
-        /// programs and inline-assembled ones share the same load/config path.
+        /// stand-alone <c>pioasm</c> tool) with default program configuration. Use the
+        /// <see cref="FromEncoded(ushort[], int, int, PioProgramOptions)"/> overload to carry
+        /// side-set, shift and origin metadata.
         /// </summary>
         /// <param name="instructions">The encoded 16-bit PIO instructions (1..32).</param>
         /// <param name="wrapTarget">The wrap-target instruction index.</param>
@@ -111,9 +112,31 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ArgumentException"><paramref name="instructions"/> is empty or longer than 32 instructions.</exception>
         public static PioProgram FromEncoded(ushort[] instructions, int wrapTarget, int wrap)
         {
+            return FromEncoded(instructions, wrapTarget, wrap, new PioProgramOptions());
+        }
+
+        /// <summary>
+        /// Wraps an externally produced opcode array together with explicit program metadata
+        /// (side-set, shift and origin), so a precompiled program seeds a state machine the same
+        /// way an inline-assembled one does through <see cref="PioStateMachineConfig.FromProgram"/>.
+        /// </summary>
+        /// <param name="instructions">The encoded 16-bit PIO instructions (1..32).</param>
+        /// <param name="wrapTarget">The wrap-target instruction index.</param>
+        /// <param name="wrap">The wrap instruction index.</param>
+        /// <param name="options">The program metadata to carry.</param>
+        /// <returns>A program wrapping the supplied instructions and metadata.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="instructions"/> or <paramref name="options"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="instructions"/> is empty or longer than 32 instructions.</exception>
+        public static PioProgram FromEncoded(ushort[] instructions, int wrapTarget, int wrap, PioProgramOptions options)
+        {
             if (instructions == null)
             {
                 throw new ArgumentNullException(nameof(instructions));
+            }
+
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
             }
 
             if (instructions.Length == 0 || instructions.Length > 32)
@@ -125,11 +148,17 @@ namespace nanoFramework.Hardware.Pico.Pio
                 instructions,
                 wrap,
                 wrapTarget,
-                -1,
-                0, false, false,
-                PioShiftDir.Right, false, 32,
-                PioShiftDir.Right, false, 32,
-                PioVersion.Rp2040);
+                options.Origin,
+                options.SideSetCount,
+                options.SideSetOpt,
+                options.SideSetPinDirs,
+                options.OutShiftDir,
+                options.AutoPull,
+                options.PullThreshold,
+                options.InShiftDir,
+                options.AutoPush,
+                options.PushThreshold,
+                options.Version);
         }
     }
 }

@@ -49,6 +49,7 @@
     <Compile Include="Pio\PioMovOp.cs" />
     <Compile Include="Pio\PioMovStatusSel.cs" />
     <Compile Include="Pio\PioProgram.cs" />
+    <Compile Include="Pio\PioProgramOptions.cs" />
     <Compile Include="Pio\PioShiftDir.cs" />
     <Compile Include="Pio\PioSrc.cs" />
     <Compile Include="Pio\PioStateMachine.cs" />
