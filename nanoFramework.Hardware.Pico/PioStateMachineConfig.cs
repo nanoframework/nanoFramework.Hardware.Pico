@@ -1,0 +1,404 @@
+﻿//
+// Copyright (c) .NET Foundation and Contributors
+// See LICENSE file in the project root for full license information.
+//
+
+using System;
+
+namespace nanoFramework.Hardware.Pico.Pio
+{
+    /// <summary>
+    /// Fluent configuration for a PIO state machine. Seed it from an assembled program
+    /// with <see cref="FromProgram"/> so wrap, side-set and shift defaults are applied
+    /// automatically, then set the pin mappings and clock divider.
+    /// </summary>
+    public sealed class PioStateMachineConfig
+    {
+        // Stable layout of the flattened config blob shared with the native layer.
+        // Native code reads these indices to rebuild a pio_sm_config.
+        /// <summary>Number of entries in the flattened configuration blob.</summary>
+        public const int BlobLength = 27;
+        /// <summary>Blob index of the OUT pin base.</summary>
+        public const int IdxOutBase = 0;
+        /// <summary>Blob index of the OUT pin count.</summary>
+        public const int IdxOutCount = 1;
+        /// <summary>Blob index of the SET pin base.</summary>
+        public const int IdxSetBase = 2;
+        /// <summary>Blob index of the SET pin count.</summary>
+        public const int IdxSetCount = 3;
+        /// <summary>Blob index of the side-set pin base.</summary>
+        public const int IdxSideSetBase = 4;
+        /// <summary>Blob index of the side-set value-bit count.</summary>
+        public const int IdxSideSetCount = 5;
+        /// <summary>Blob index of the side-set optional flag.</summary>
+        public const int IdxSideSetOpt = 6;
+        /// <summary>Blob index of the side-set PINDIRS flag.</summary>
+        public const int IdxSideSetPinDirs = 7;
+        /// <summary>Blob index of the IN pin base.</summary>
+        public const int IdxInBase = 8;
+        /// <summary>Blob index of the JMP PIN GPIO.</summary>
+        public const int IdxJmpPin = 9;
+        /// <summary>Blob index of the OUT/pull shift-right flag.</summary>
+        public const int IdxOutShiftRight = 10;
+        /// <summary>Blob index of the autopull flag.</summary>
+        public const int IdxAutoPull = 11;
+        /// <summary>Blob index of the autopull threshold.</summary>
+        public const int IdxPullThreshold = 12;
+        /// <summary>Blob index of the IN/push shift-right flag.</summary>
+        public const int IdxInShiftRight = 13;
+        /// <summary>Blob index of the autopush flag.</summary>
+        public const int IdxAutoPush = 14;
+        /// <summary>Blob index of the autopush threshold.</summary>
+        public const int IdxPushThreshold = 15;
+        /// <summary>Blob index of the wrap-target offset.</summary>
+        public const int IdxWrapTarget = 16;
+        /// <summary>Blob index of the wrap offset.</summary>
+        public const int IdxWrap = 17;
+        /// <summary>Blob index of the clock-divider integer part.</summary>
+        public const int IdxClkDivInt = 18;
+        /// <summary>Blob index of the clock-divider fractional part.</summary>
+        public const int IdxClkDivFrac = 19;
+        /// <summary>Blob index of the FIFO join mode.</summary>
+        public const int IdxFifoJoin = 20;
+        /// <summary>Blob index of the GPIO base.</summary>
+        public const int IdxGpioBase = 21;
+        /// <summary>Blob index of the MOV status source selector.</summary>
+        public const int IdxMovStatusSel = 22;
+        /// <summary>Blob index of the MOV status N threshold.</summary>
+        public const int IdxMovStatusN = 23;
+        /// <summary>Blob index of the OUT sticky flag.</summary>
+        public const int IdxOutSticky = 24;
+        /// <summary>Blob index of the inline-OUT-enable flag.</summary>
+        public const int IdxInlineOutEn = 25;
+        /// <summary>Blob index of the inline OUT enable bit selector.</summary>
+        public const int IdxOutEnSel = 26;
+
+        private int _outBase, _outCount;
+        private int _setBase, _setCount;
+        private int _sideSetBase;
+        private int _inBase;
+        private int _jmpPin;
+
+        private int _sideSetCount;
+        private bool _sideSetOpt;
+        private bool _sideSetPinDirs;
+
+        private PioShiftDir _outShiftDir = PioShiftDir.Right;
+        private bool _autoPull;
+        private int _pullThreshold = 32;
+        private PioShiftDir _inShiftDir = PioShiftDir.Right;
+        private bool _autoPush;
+        private int _pushThreshold = 32;
+
+        private int _wrapTarget;
+        private int _wrap;
+
+        private int _clkDivInt = 1;
+        private int _clkDivFrac;
+
+        private PioFifoJoin _fifoJoin = PioFifoJoin.None;
+
+        private int _gpioBase;
+
+        private PioMovStatusSel _movStatusSel = PioMovStatusSel.TxLevel;
+        private int _movStatusN;
+
+        private bool _outSticky;
+        private bool _inlineOutEn;
+        private int _outEnSel;
+
+        /// <summary>Creates an empty configuration (clkdiv = 1.0, no pins mapped).</summary>
+        public PioStateMachineConfig()
+        {
+        }
+
+        /// <summary>
+        /// Builds a configuration pre-populated from an assembled program loaded at
+        /// <paramref name="offset"/>: wrap/side-set/shift defaults are taken from the
+        /// program (matching the SDK's <c>*_program_get_default_config</c>).
+        /// </summary>
+        public static PioStateMachineConfig FromProgram(PioProgram program, int offset)
+        {
+            if (program == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (offset < 0 || offset > 31)
+            {
+                throw new ArgumentException("Offset must be 0..31.");
+            }
+
+            PioStateMachineConfig cfg = new PioStateMachineConfig();
+            cfg._wrapTarget = offset + program.WrapTarget;
+            cfg._wrap = offset + program.Wrap;
+            cfg._sideSetCount = program.SideSetCount;
+            cfg._sideSetOpt = program.SideSetOpt;
+            cfg._sideSetPinDirs = program.SideSetPinDirs;
+            cfg._outShiftDir = program.OutShiftDir;
+            cfg._autoPull = program.AutoPull;
+            cfg._pullThreshold = program.PullThreshold;
+            cfg._inShiftDir = program.InShiftDir;
+            cfg._autoPush = program.AutoPush;
+            cfg._pushThreshold = program.PushThreshold;
+            return cfg;
+        }
+
+        /// <summary>Maps the OUT pin group (base GPIO and consecutive pin count).</summary>
+        public PioStateMachineConfig OutPins(int basePin, int count)
+        {
+            ValidatePinGroup(basePin, count);
+            _outBase = basePin;
+            _outCount = count;
+            return this;
+        }
+
+        /// <summary>Maps the SET pin group (base GPIO and consecutive pin count, 0..5).</summary>
+        public PioStateMachineConfig SetPins(int basePin, int count)
+        {
+            if (count < 0 || count > 5)
+            {
+                throw new ArgumentException("SET pin count must be 0..5.");
+            }
+
+            ValidatePinBase(basePin);
+            _setBase = basePin;
+            _setCount = count;
+            return this;
+        }
+
+        /// <summary>Maps the side-set pin base. The count comes from the program/assembler.</summary>
+        public PioStateMachineConfig SideSetPins(int basePin)
+        {
+            ValidatePinBase(basePin);
+            _sideSetBase = basePin;
+            return this;
+        }
+
+        /// <summary>Maps the IN pin base.</summary>
+        public PioStateMachineConfig InPins(int basePin)
+        {
+            ValidatePinBase(basePin);
+            _inBase = basePin;
+            return this;
+        }
+
+        /// <summary>Selects the GPIO used by the JMP PIN condition.</summary>
+        public PioStateMachineConfig JmpPin(int pin)
+        {
+            ValidatePinBase(pin);
+            _jmpPin = pin;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the clock divider (1.0 .. 65536.0). The SM advances at sysclk/div.
+        /// Stored as the integer and 1/256 fractional parts of the CLKDIV register.
+        /// </summary>
+        public PioStateMachineConfig ClockDivisor(float div)
+        {
+            if (div < 1.0f || div > 65536.0f)
+            {
+                throw new ArgumentException("Clock divisor must be 1.0..65536.0.");
+            }
+
+            int intPart = (int)div;
+            int frac = (int)((div - intPart) * 256.0f + 0.5f);
+            if (frac > 255)
+            {
+                frac = 0;
+                intPart += 1;
+            }
+
+            // 65536 is represented by integer field 0 with zero fraction.
+            _clkDivInt = intPart >= 65536 ? 0 : intPart;
+            _clkDivFrac = frac;
+            return this;
+        }
+
+        /// <summary>
+        /// Default system clock used by <see cref="ClockFromFrequency"/> — the RP2040 power-on
+        /// default (125 MHz). Pass the real sysclk to that method if you changed it or run on RP2350.
+        /// </summary>
+        public const float DefaultSystemClockHz = 125000000f;
+
+        /// <summary>
+        /// Sets the clock divider from a target state-machine execution frequency rather than a raw
+        /// divisor: <c>div = sysClockHz / frequencyHz</c> (mirrors the SDK pattern around
+        /// <c>clock_get_hz(clk_sys)</c>). The divisor is clamped to the legal 1.0..65536.0 range, so
+        /// frequencies above sysclk peg at div 1.0 and very low ones at div 65536.0.
+        /// </summary>
+        /// <param name="frequencyHz">Desired SM tick frequency in Hz (must be positive).</param>
+        /// <param name="sysClockHz">System clock in Hz (defaults to <see cref="DefaultSystemClockHz"/>).</param>
+        public PioStateMachineConfig ClockFromFrequency(float frequencyHz, float sysClockHz = DefaultSystemClockHz)
+        {
+            if (frequencyHz <= 0f)
+            {
+                throw new ArgumentException("Frequency must be positive.");
+            }
+
+            if (sysClockHz <= 0f)
+            {
+                throw new ArgumentException("System clock must be positive.");
+            }
+
+            float div = sysClockHz / frequencyHz;
+            if (div < 1.0f)
+            {
+                div = 1.0f;
+            }
+            else if (div > 65536.0f)
+            {
+                div = 65536.0f;
+            }
+
+            return ClockDivisor(div);
+        }
+
+        /// <summary>
+        /// Sets the FIFO join mode. The PUT/GET modes (RP2350/PIO v1) make the RX FIFO a
+        /// random-access register file for the indexed RX-FIFO MOV instructions.
+        /// </summary>
+        public PioStateMachineConfig FifoJoin(PioFifoJoin mode)
+        {
+            _fifoJoin = mode;
+            return this;
+        }
+
+        /// <summary>
+        /// (RP2350) Selects the block's GPIO base — <c>0</c> (pins 0..31) or <c>16</c> (pins 16..47)
+        /// — so a state machine can reach the upper GPIOs on 48-pin packages (RP2350B). Pin mappings
+        /// stay <em>absolute</em> GPIO numbers; the base is subtracted to form the 5-bit pin fields.
+        /// </summary>
+        public PioStateMachineConfig GpioBase(int gpioBase)
+        {
+            if (gpioBase != 0 && gpioBase != 16)
+            {
+                throw new ArgumentException("GPIO base must be 0 or 16.");
+            }
+
+            _gpioBase = gpioBase;
+            return this;
+        }
+
+        /// <summary>Overrides the wrap region (absolute program offsets). Normally seeded by FromProgram.</summary>
+        public PioStateMachineConfig Wrap(int wrapTarget, int wrap)
+        {
+            _wrapTarget = wrapTarget;
+            _wrap = wrap;
+            return this;
+        }
+
+        /// <summary>
+        /// Source for the <c>mov ..., status</c> instruction: all-ones when the selected FIFO's level is
+        /// less than <paramref name="n"/>, else all-zeroes (EXECCTRL STATUS_SEL/STATUS_N).
+        /// </summary>
+        public PioStateMachineConfig MovStatus(PioMovStatusSel sel, int n)
+        {
+            if (n < 0 || n > 15)
+            {
+                throw new ArgumentException("Status N must be 0..15.");
+            }
+
+            _movStatusSel = sel;
+            _movStatusN = n;
+            return this;
+        }
+
+        /// <summary>
+        /// OUT special behaviour: <paramref name="sticky"/> keeps the last OUT/SET value driven each
+        /// cycle; <paramref name="enableInlineOut"/> uses OUT bit <paramref name="enableBitIndex"/> as a
+        /// per-cycle output enable (EXECCTRL OUT_STICKY / INLINE_OUT_EN / OUT_EN_SEL).
+        /// </summary>
+        public PioStateMachineConfig OutSpecial(bool sticky, bool enableInlineOut, int enableBitIndex)
+        {
+            if (enableBitIndex < 0 || enableBitIndex > 31)
+            {
+                throw new ArgumentException("Enable bit index must be 0..31.");
+            }
+
+            _outSticky = sticky;
+            _inlineOutEn = enableInlineOut;
+            _outEnSel = enableBitIndex;
+            return this;
+        }
+
+        /// <summary>Flattens the configuration into the fixed-layout blob handed to native interop.</summary>
+        public uint[] ToBlob()
+        {
+            // GPIO base (RP2350): pin mappings are absolute; the 5-bit PINCTRL fields are relative
+            // to the block's GPIO base, so subtract it here (the GPIOBASE register carries the base).
+            CheckWindow(_outBase, _outCount);
+            CheckWindow(_setBase, _setCount);
+            CheckWindow(_sideSetBase, _sideSetCount);
+
+            uint[] b = new uint[BlobLength];
+            b[IdxOutBase] = (uint)Rel(_outBase);
+            b[IdxOutCount] = (uint)_outCount;
+            b[IdxSetBase] = (uint)Rel(_setBase);
+            b[IdxSetCount] = (uint)_setCount;
+            b[IdxSideSetBase] = (uint)Rel(_sideSetBase);
+            b[IdxSideSetCount] = (uint)_sideSetCount;
+            b[IdxSideSetOpt] = _sideSetOpt ? 1u : 0u;
+            b[IdxSideSetPinDirs] = _sideSetPinDirs ? 1u : 0u;
+            b[IdxInBase] = (uint)Rel(_inBase);
+            b[IdxJmpPin] = (uint)Rel(_jmpPin);
+            b[IdxOutShiftRight] = _outShiftDir == PioShiftDir.Right ? 1u : 0u;
+            b[IdxAutoPull] = _autoPull ? 1u : 0u;
+            b[IdxPullThreshold] = (uint)_pullThreshold;
+            b[IdxInShiftRight] = _inShiftDir == PioShiftDir.Right ? 1u : 0u;
+            b[IdxAutoPush] = _autoPush ? 1u : 0u;
+            b[IdxPushThreshold] = (uint)_pushThreshold;
+            b[IdxWrapTarget] = (uint)_wrapTarget;
+            b[IdxWrap] = (uint)_wrap;
+            b[IdxClkDivInt] = (uint)_clkDivInt;
+            b[IdxClkDivFrac] = (uint)_clkDivFrac;
+            b[IdxFifoJoin] = (uint)_fifoJoin;
+            b[IdxGpioBase] = (uint)_gpioBase;
+            b[IdxMovStatusSel] = (uint)_movStatusSel;
+            b[IdxMovStatusN] = (uint)_movStatusN;
+            b[IdxOutSticky] = _outSticky ? 1u : 0u;
+            b[IdxInlineOutEn] = _inlineOutEn ? 1u : 0u;
+            b[IdxOutEnSel] = (uint)_outEnSel;
+            return b;
+        }
+
+        // Pin relative to the GPIO base (clamped: unused groups keep base 0 harmlessly).
+        private int Rel(int absPin)
+        {
+            int rel = absPin - _gpioBase;
+            return rel < 0 ? 0 : rel;
+        }
+
+        // A mapped pin group must fall inside the 32-pin window above the GPIO base.
+        private void CheckWindow(int basePin, int count)
+        {
+            if (count <= 0)
+            {
+                return;
+            }
+
+            if (basePin < _gpioBase || basePin + count - 1 > _gpioBase + 31)
+            {
+                throw new ArgumentException("Pin group is outside the 32-pin window of the GPIO base.");
+            }
+        }
+
+        private static void ValidatePinBase(int basePin)
+        {
+            if (basePin < 0 || basePin > 47)
+            {
+                throw new ArgumentException("Pin base must be 0..47.");
+            }
+        }
+
+        private static void ValidatePinGroup(int basePin, int count)
+        {
+            ValidatePinBase(basePin);
+            if (count < 0 || count > 32)
+            {
+                throw new ArgumentException("Pin count must be 0..32.");
+            }
+        }
+    }
+}

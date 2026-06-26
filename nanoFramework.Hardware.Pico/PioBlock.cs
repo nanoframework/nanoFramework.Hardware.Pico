@@ -1,0 +1,207 @@
+﻿//
+// Copyright (c) .NET Foundation and Contributors
+// See LICENSE file in the project root for full license information.
+//
+
+using System;
+using System.Runtime.CompilerServices;
+using nanoFramework.Runtime.Events;
+
+namespace nanoFramework.Hardware.Pico.Pio
+{
+    /// <summary>
+    /// Handles a PIO interrupt raised on a block. <paramref name="flags"/> is the bit mask of
+    /// state-machine IRQ flags (0..3) that fired (bit <c>n</c> set means SM-relative <c>irq n</c>).
+    /// </summary>
+    public delegate void PioInterruptEventHandler(PioBlock sender, uint flags);
+
+    /// <summary>
+    /// A single PIO block (instruction memory shared by four state machines). Wraps the
+    /// native <c>hardware_pio</c> instance program-load and state-machine claiming.
+    /// </summary>
+    public sealed class PioBlock
+    {
+        private readonly int _index;
+
+        private NativeEventDispatcher _irqDispatcher;
+        private PioInterruptEventHandler _interruptCallbacks;
+
+        internal PioBlock(int index)
+        {
+            _index = index;
+        }
+
+        /// <summary>Block index (0..2).</summary>
+        public int Index { get { return _index; } }
+
+        /// <summary>
+        /// Loads an assembled program into this block's instruction memory and returns
+        /// the load offset (maps to <c>pio_add_program</c>). Throws if there is no room.
+        /// </summary>
+        public uint AddProgram(PioProgram program)
+        {
+            if (program == null)
+            {
+                throw new ArgumentNullException(nameof(program));
+            }
+
+            int offset = NativeAddProgram(_index, program.Instructions, program.Length, program.Origin);
+            if (offset < 0)
+            {
+                throw new InvalidOperationException("No room to load PIO program.");
+            }
+
+            return (uint)offset;
+        }
+
+        /// <summary>Removes a previously added program (maps to <c>pio_remove_program</c>).</summary>
+        public void RemoveProgram(PioProgram program, uint offset)
+        {
+            if (program == null)
+            {
+                throw new ArgumentNullException(nameof(program));
+            }
+
+            NativeRemoveProgram(_index, program.Length, (int)offset);
+        }
+
+        /// <summary>Claims a free state machine on this block (maps to <c>pio_claim_unused_sm</c>).</summary>
+        public PioStateMachine ClaimStateMachine()
+        {
+            int sm = NativeClaimUnusedSm(_index, true);
+            if (sm < 0)
+            {
+                throw new InvalidOperationException("No free state machine on this PIO block.");
+            }
+
+            return new PioStateMachine(this, sm);
+        }
+
+        /// <summary>
+        /// Gets a specific state machine (0..3) on this block. Unlike <see cref="ClaimStateMachine"/>
+        /// this does <em>not</em> mark the SM as claimed, so the caller is responsible for avoiding
+        /// collisions; prefer <see cref="ClaimStateMachine"/> unless a fixed SM index is required.
+        /// </summary>
+        public PioStateMachine StateMachine(int sm)
+        {
+            if (sm < 0 || sm > 3)
+            {
+                throw new ArgumentOutOfRangeException(nameof(sm));
+            }
+
+            return new PioStateMachine(this, sm);
+        }
+
+        /// <summary>
+        /// Routes a GPIO to this PIO block so a state machine can drive/read it (maps to
+        /// <c>pio_gpio_init</c>: sets the pad's function select to PIO0/PIO1). Required before a
+        /// pin mapped via OUT/SET/side-set/IN actually reaches the physical pad.
+        /// </summary>
+        public void InitGpio(int pin)
+        {
+            // RP2040 has 30 GPIOs (0..29); RP2350 has up to 48 (0..47). The native side enforces
+            // the per-chip ceiling, so accept the wider range here rather than capping at RP2040.
+            if (pin < 0 || pin > 47)
+            {
+                throw new ArgumentOutOfRangeException(nameof(pin));
+            }
+
+            NativeInitGpio(_index, pin);
+        }
+
+        /// <summary>Routes <paramref name="count"/> consecutive GPIOs from <paramref name="basePin"/> to this block.</summary>
+        public void InitGpioRange(int basePin, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                InitGpio(basePin + i);
+            }
+        }
+
+        /// <summary>Raises PIO IRQ flag <paramref name="irq"/> (0..7) from the CPU side (maps to IRQ_FORCE).</summary>
+        public void ForceIrq(int irq)
+        {
+            if (irq < 0 || irq > 7)
+            {
+                throw new ArgumentOutOfRangeException(nameof(irq));
+            }
+
+            NativeForceIrq(_index, irq);
+        }
+
+        /// <summary>Clears PIO IRQ flag <paramref name="irq"/> (0..7), e.g. one raised by a state machine's <c>irq</c>.</summary>
+        public void ClearIrq(int irq)
+        {
+            if (irq < 0 || irq > 7)
+            {
+                throw new ArgumentOutOfRangeException(nameof(irq));
+            }
+
+            NativeClearIrq(_index, irq);
+        }
+
+        /// <summary>
+        /// Raised when a state machine on this block asserts a PIO IRQ flag (0..3), or one is forced
+        /// from the CPU with <see cref="ForceIrq"/>. The handler runs on the event thread with no CPU
+        /// polling. Subscribing arms the interrupt; the last unsubscription disarms it. The flag is
+        /// cleared natively before the event is delivered.
+        /// </summary>
+        public event PioInterruptEventHandler Interrupt
+        {
+            add
+            {
+                if (_irqDispatcher == null)
+                {
+                    _irqDispatcher = new NativeEventDispatcher("PioIrqDriver", (ulong)_index);
+                    _irqDispatcher.OnInterrupt += OnNativeIrq;
+                    _irqDispatcher.EnableInterrupt();
+                }
+
+                _interruptCallbacks += value;
+            }
+
+            remove
+            {
+                _interruptCallbacks -= value;
+
+                if (_interruptCallbacks == null && _irqDispatcher != null)
+                {
+                    _irqDispatcher.OnInterrupt -= OnNativeIrq;
+                    _irqDispatcher.DisableInterrupt();
+                    _irqDispatcher.Dispose();
+                    _irqDispatcher = null;
+                }
+            }
+        }
+
+        // data2 carries the raw SM IRQ flag mask the native driver read from IRQ0_INTS[11:8].
+        private void OnNativeIrq(uint data1, uint data2, DateTime time)
+        {
+            PioInterruptEventHandler callbacks = _interruptCallbacks;
+            if (callbacks != null)
+            {
+                callbacks(this, data2);
+            }
+        }
+
+        // ---- native interop (implemented in nf-interpreter) ---------------
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private static extern int NativeAddProgram(int block, ushort[] instructions, int length, int origin);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private static extern void NativeRemoveProgram(int block, int length, int offset);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private static extern int NativeClaimUnusedSm(int block, bool required);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private static extern void NativeInitGpio(int block, int pin);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private static extern void NativeForceIrq(int block, int irq);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private static extern void NativeClearIrq(int block, int irq);
+    }
+}
