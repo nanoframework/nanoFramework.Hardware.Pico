@@ -36,16 +36,25 @@
   </PropertyGroup>
   <Import Project="$(NanoFrameworkProjectSystemPath)NFProjectSystem.props" Condition="Exists('$(NanoFrameworkProjectSystemPath)NFProjectSystem.props')" />
   <ItemGroup>
-    <Compile Include="Pio.cs" />
-    <Compile Include="PioAssembler.cs" />
-    <Compile Include="PioBlock.cs" />
-    <Compile Include="PioEncoder.cs" />
-    <Compile Include="PioEnums.cs" />
-    <Compile Include="PioInstructionRef.cs" />
-    <Compile Include="PioLabel.cs" />
-    <Compile Include="PioProgram.cs" />
-    <Compile Include="PioStateMachine.cs" />
-    <Compile Include="PioStateMachineConfig.cs" />
+    <Compile Include="Pio\Pio.cs" />
+    <Compile Include="Pio\PioAssembler.cs" />
+    <Compile Include="Pio\PioAssemblerOptions.cs" />
+    <Compile Include="Pio\PioBlock.cs" />
+    <Compile Include="Pio\PioCondition.cs" />
+    <Compile Include="Pio\PioDest.cs" />
+    <Compile Include="Pio\PioEncoder.cs" />
+    <Compile Include="Pio\PioFifoJoin.cs" />
+    <Compile Include="Pio\PioInstructionRef.cs" />
+    <Compile Include="Pio\PioLabel.cs" />
+    <Compile Include="Pio\PioMovOp.cs" />
+    <Compile Include="Pio\PioMovStatusSel.cs" />
+    <Compile Include="Pio\PioProgram.cs" />
+    <Compile Include="Pio\PioShiftDir.cs" />
+    <Compile Include="Pio\PioSrc.cs" />
+    <Compile Include="Pio\PioStateMachine.cs" />
+    <Compile Include="Pio\PioStateMachineConfig.cs" />
+    <Compile Include="Pio\PioVersion.cs" />
+    <Compile Include="Pio\PioWaitSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

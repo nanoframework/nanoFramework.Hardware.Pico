@@ -7,22 +7,6 @@ using System;
 
 namespace nanoFramework.Hardware.Pico.Pio
 {
-    /// <summary>Construction-time options for <see cref="PioAssembler"/>.</summary>
-    public sealed class PioAssemblerOptions
-    {
-        /// <summary>Target PIO version. RP2350 unlocks v1-only instructions.</summary>
-        public PioVersion Version = PioVersion.Rp2040;
-
-        /// <summary>Side-set value-bit count (0..5). Reduces the per-instruction delay range.</summary>
-        public int SideSetCount = 0;
-
-        /// <summary>When true, side-set is optional and an enable bit is reserved.</summary>
-        public bool SideSetOpt = false;
-
-        /// <summary>When true, side-set drives PINDIRS instead of PINS.</summary>
-        public bool SideSetPinDirs = false;
-    }
-
     /// <summary>
     /// Builds a <see cref="PioProgram"/> from fluent instruction calls. Modeled on
     /// <c>System.Reflection.Emit.ILGenerator</c>: <see cref="DefineLabel"/> then
