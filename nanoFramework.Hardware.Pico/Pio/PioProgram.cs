@@ -18,7 +18,13 @@ namespace nanoFramework.Hardware.Pico.Pio
         public ushort[] Instructions { get; private set; }
 
         /// <summary>Number of instructions.</summary>
-        public int Length { get { return Instructions.Length; } }
+        public int Length
+        {
+            get
+            {
+                return Instructions.Length;
+            }
+        }
 
         /// <summary>PC value that wraps back to <see cref="WrapTarget"/> (last instruction by default).</summary>
         public int Wrap { get; private set; }

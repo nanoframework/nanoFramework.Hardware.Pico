@@ -27,7 +27,13 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>State machine index (0..3).</summary>
-        public int Index { get { return _sm; } }
+        public int Index
+        {
+            get
+            {
+                return _sm;
+            }
+        }
 
         /// <summary>
         /// Configures and resets the state machine to start executing at

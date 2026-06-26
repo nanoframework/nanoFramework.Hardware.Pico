@@ -32,7 +32,13 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Block index (0..2).</summary>
-        public int Index { get { return _index; } }
+        public int Index
+        {
+            get
+            {
+                return _index;
+            }
+        }
 
         /// <summary>
         /// Loads an assembled program into this block's instruction memory and returns

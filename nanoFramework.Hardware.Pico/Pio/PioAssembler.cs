@@ -84,10 +84,22 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Maximum delay encodable per instruction given the side-set configuration.</summary>
-        public int MaxDelay { get { return (1 << PioEncoder.DelayBits(_sideSetCount, _sideSetOpt)) - 1; } }
+        public int MaxDelay
+        {
+            get
+            {
+                return (1 << PioEncoder.DelayBits(_sideSetCount, _sideSetOpt)) - 1;
+            }
+        }
 
         /// <summary>Number of instructions emitted so far (the current program offset).</summary>
-        public int Count { get { return _count; } }
+        public int Count
+        {
+            get
+            {
+                return _count;
+            }
+        }
 
         // ---- labels -------------------------------------------------------
 

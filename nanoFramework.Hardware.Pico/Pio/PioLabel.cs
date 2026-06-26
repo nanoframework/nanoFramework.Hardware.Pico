@@ -24,6 +24,12 @@ namespace nanoFramework.Hardware.Pico.Pio
         internal int Address { get; set; }
 
         /// <summary>True once the label has been placed in the instruction stream.</summary>
-        public bool IsBound { get { return Address >= 0; } }
+        public bool IsBound
+        {
+            get
+            {
+                return Address >= 0;
+            }
+        }
     }
 }
