@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>nanoFramework.Hardware.Pico</id>
+    <version>$version$</version>
+    <title>nanoFramework.Hardware.Pico</title>
+    <authors>nanoframework</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="file">LICENSE.md</license>
+    <releaseNotes>
+    </releaseNotes>
+    <readme>docs\README.md</readme>
+    <developmentDependency>false</developmentDependency>
+    <projectUrl>https://github.com/nanoframework/nanoFramework.Hardware.Pico</projectUrl>
+    <icon>images\nf-logo.png</icon>
+    <repository type="git" url="https://github.com/nanoframework/nanoFramework.Hardware.Pico" commit="$commit$" />
+    <copyright>Copyright (c) .NET Foundation and Contributors</copyright>
+    <description>This package includes the nanoFramework.Hardware.Pico assembly for .NET nanoFramework C# projects.
+The nanoFramework.Hardware.Pico assembly contains functions specific to the Raspberry Pico devices like the RP2040 and RP2350.
+This package requires a target with nanoFramework.Hardware.Pico v$nativeVersion$ (checksum $checksum$).</description>
+    <tags>nanoFramework C# csharp netmf netnf Pico</tags>
+    <dependencies>
+      <dependency id="nanoFramework.CoreLibrary" version="1.17.11" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="nanoFramework.Hardware.Pico\bin\Release\nanoFramework.Hardware.Pico.dll" target="lib\nanoFramework.Hardware.Pico.dll" />
+    <file src="nanoFramework.Hardware.Pico\bin\Release\nanoFramework.Hardware.Pico.pdb" target="lib\nanoFramework.Hardware.Pico.pdb" />
+    <file src="nanoFramework.Hardware.Pico\bin\Release\nanoFramework.Hardware.Pico.pdbx" target="lib\nanoFramework.Hardware.Pico.pdbx" />
+    <file src="nanoFramework.Hardware.Pico\bin\Release\nanoFramework.Hardware.Pico.pe" target="lib\nanoFramework.Hardware.Pico.pe" />
+    <file src="nanoFramework.Hardware.Pico\bin\Release\nanoFramework.Hardware.Pico.xml" target="lib\nanoFramework.Hardware.Pico.xml" />
+    <file src="assets\readme.txt" target="" />
+    <file src="README.md" target="docs\" />
+    <file src="assets\nf-logo.png" target="images" />
+    <file src="LICENSE.md" target="" />
+  </files>
+</package>
