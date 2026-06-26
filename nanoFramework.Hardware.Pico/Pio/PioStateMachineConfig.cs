@@ -117,6 +117,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <paramref name="offset"/>: wrap/side-set/shift defaults are taken from the
         /// program (matching the SDK's <c>*_program_get_default_config</c>).
         /// </summary>
+        /// <exception cref="ArgumentException">Offset must be 0..31.</exception>
         public static PioStateMachineConfig FromProgram(PioProgram program, int offset)
         {
             if (program == null)
@@ -126,7 +127,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 
             if (offset < 0 || offset > 31)
             {
-                throw new ArgumentException("Offset must be 0..31.");
+                throw new ArgumentException();
             }
 
             PioStateMachineConfig cfg = new PioStateMachineConfig();
@@ -154,11 +155,12 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Maps the SET pin group (base GPIO and consecutive pin count, 0..5).</summary>
+        /// <exception cref="ArgumentException">SET pin count must be 0..5.</exception>
         public PioStateMachineConfig SetPins(int basePin, int count)
         {
             if (count < 0 || count > 5)
             {
-                throw new ArgumentException("SET pin count must be 0..5.");
+                throw new ArgumentException();
             }
 
             ValidatePinBase(basePin);
@@ -195,11 +197,12 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// Sets the clock divider (1.0 .. 65536.0). The SM advances at sysclk/div.
         /// Stored as the integer and 1/256 fractional parts of the CLKDIV register.
         /// </summary>
+        /// <exception cref="ArgumentException">Clock divisor must be 1.0..65536.0.</exception>
         public PioStateMachineConfig ClockDivisor(float div)
         {
             if (div < 1.0f || div > 65536.0f)
             {
-                throw new ArgumentException("Clock divisor must be 1.0..65536.0.");
+                throw new ArgumentException();
             }
 
             int intPart = (int)div;
@@ -230,16 +233,18 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// </summary>
         /// <param name="frequencyHz">Desired SM tick frequency in Hz (must be positive).</param>
         /// <param name="sysClockHz">System clock in Hz (defaults to <see cref="DefaultSystemClockHz"/>).</param>
+        /// <exception cref="ArgumentException">Frequency must be positive.</exception>
+        /// <exception cref="ArgumentException">System clock must be positive.</exception>
         public PioStateMachineConfig ClockFromFrequency(float frequencyHz, float sysClockHz = DefaultSystemClockHz)
         {
             if (frequencyHz <= 0f)
             {
-                throw new ArgumentException("Frequency must be positive.");
+                throw new ArgumentException();
             }
 
             if (sysClockHz <= 0f)
             {
-                throw new ArgumentException("System clock must be positive.");
+                throw new ArgumentException();
             }
 
             float div = sysClockHz / frequencyHz;
@@ -270,11 +275,12 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// — so a state machine can reach the upper GPIOs on 48-pin packages (RP2350B). Pin mappings
         /// stay <em>absolute</em> GPIO numbers; the base is subtracted to form the 5-bit pin fields.
         /// </summary>
+        /// <exception cref="ArgumentException">GPIO base must be 0 or 16.</exception>
         public PioStateMachineConfig GpioBase(int gpioBase)
         {
             if (gpioBase != 0 && gpioBase != 16)
             {
-                throw new ArgumentException("GPIO base must be 0 or 16.");
+                throw new ArgumentException();
             }
 
             _gpioBase = gpioBase;
@@ -293,11 +299,12 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// Source for the <c>mov ..., status</c> instruction: all-ones when the selected FIFO's level is
         /// less than <paramref name="n"/>, else all-zeroes (EXECCTRL STATUS_SEL/STATUS_N).
         /// </summary>
+        /// <exception cref="ArgumentException">Status N must be 0..15.</exception>
         public PioStateMachineConfig MovStatus(PioMovStatusSel sel, int n)
         {
             if (n < 0 || n > 15)
             {
-                throw new ArgumentException("Status N must be 0..15.");
+                throw new ArgumentException();
             }
 
             _movStatusSel = sel;
@@ -310,11 +317,12 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// cycle; <paramref name="enableInlineOut"/> uses OUT bit <paramref name="enableBitIndex"/> as a
         /// per-cycle output enable (EXECCTRL OUT_STICKY / INLINE_OUT_EN / OUT_EN_SEL).
         /// </summary>
+        /// <exception cref="ArgumentException">Enable bit index must be 0..31.</exception>
         public PioStateMachineConfig OutSpecial(bool sticky, bool enableInlineOut, int enableBitIndex)
         {
             if (enableBitIndex < 0 || enableBitIndex > 31)
             {
-                throw new ArgumentException("Enable bit index must be 0..31.");
+                throw new ArgumentException();
             }
 
             _outSticky = sticky;
@@ -380,7 +388,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 
             if (basePin < _gpioBase || basePin + count - 1 > _gpioBase + 31)
             {
-                throw new ArgumentException("Pin group is outside the 32-pin window of the GPIO base.");
+                throw new ArgumentException();
             }
         }
 
@@ -388,7 +396,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             if (basePin < 0 || basePin > 47)
             {
-                throw new ArgumentException("Pin base must be 0..47.");
+                throw new ArgumentException();
             }
         }
 
@@ -397,7 +405,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             ValidatePinBase(basePin);
             if (count < 0 || count > 32)
             {
-                throw new ArgumentException("Pin count must be 0..32.");
+                throw new ArgumentException();
             }
         }
     }

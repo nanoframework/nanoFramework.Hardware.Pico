@@ -50,6 +50,8 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Creates an assembler with the given options.</summary>
+        /// <exception cref="ArgumentException">SideSetCount must be 0..5.</exception>
+        /// <exception cref="ArgumentException">Side-set (count + optional enable bit) cannot exceed 5 bits.</exception>
         public PioAssembler(PioAssemblerOptions options)
         {
             if (options == null)
@@ -59,13 +61,13 @@ namespace nanoFramework.Hardware.Pico.Pio
 
             if (options.SideSetCount < 0 || options.SideSetCount > 5)
             {
-                throw new ArgumentException("SideSetCount must be 0..5.");
+                throw new ArgumentException();
             }
 
             int total = options.SideSetCount + (options.SideSetOpt ? 1 : 0);
             if (total > 5)
             {
-                throw new ArgumentException("Side-set (count + optional enable bit) cannot exceed 5 bits.");
+                throw new ArgumentException();
             }
 
             _version = options.Version;
@@ -98,6 +100,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Binds a label to the current program offset.</summary>
+        /// <exception cref="InvalidOperationException">Label already marked.</exception>
         public void MarkLabel(PioLabel label)
         {
             if (label == null)
@@ -107,7 +110,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 
             if (label.Address >= 0)
             {
-                throw new InvalidOperationException("Label already marked.");
+                throw new InvalidOperationException();
             }
 
             label.Address = _count;
@@ -116,38 +119,42 @@ namespace nanoFramework.Hardware.Pico.Pio
         // ---- directives ---------------------------------------------------
 
         /// <summary>Marks the wrap-target (PC wraps back here). Defaults to offset 0.</summary>
+        /// <exception cref="InvalidOperationException">.wrap_target already set.</exception>
         public void WrapTarget()
         {
             if (_wrapTarget >= 0)
             {
-                throw new InvalidOperationException(".wrap_target already set.");
+                throw new InvalidOperationException();
             }
 
             _wrapTarget = _count;
         }
 
         /// <summary>Marks the wrap point (the last instruction that wraps). Defaults to the final instruction.</summary>
+        /// <exception cref="InvalidOperationException">.wrap requires at least one instruction.</exception>
+        /// <exception cref="InvalidOperationException">.wrap already set.</exception>
         public void Wrap()
         {
             if (_count == 0)
             {
-                throw new InvalidOperationException(".wrap requires at least one instruction.");
+                throw new InvalidOperationException();
             }
 
             if (_wrap >= 0)
             {
-                throw new InvalidOperationException(".wrap already set.");
+                throw new InvalidOperationException();
             }
 
             _wrap = _count - 1;
         }
 
         /// <summary>Pins the program to a fixed load offset 0..31 (default: relocatable, -1).</summary>
+        /// <exception cref="ArgumentException">Origin must be 0..31.</exception>
         public void SetOrigin(int origin)
         {
             if (origin < 0 || origin > 31)
             {
-                throw new ArgumentException("Origin must be 0..31.");
+                throw new ArgumentException();
             }
 
             _origin = (sbyte)origin;
@@ -197,22 +204,24 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>JMP to an absolute program offset.</summary>
+        /// <exception cref="ArgumentException">Jump address must be 0..31.</exception>
         public PioInstructionRef Jmp(PioCondition condition, int address)
         {
             if (address < 0 || address > 31)
             {
-                throw new ArgumentException("Jump address must be 0..31.");
+                throw new ArgumentException();
             }
 
             return new PioInstructionRef(this, Add(PioEncoder.Jmp(condition, address)));
         }
 
         /// <summary>WAIT &lt;polarity&gt; &lt;source&gt; &lt;index&gt;.</summary>
+        /// <exception cref="ArgumentException">Wait index must be 0..31.</exception>
         public PioInstructionRef Wait(bool polarity, PioWaitSource source, int index)
         {
             if (index < 0 || index > 31)
             {
-                throw new ArgumentException("Wait index must be 0..31.");
+                throw new ArgumentException();
             }
 
             return new PioInstructionRef(this, Add(PioEncoder.Wait(polarity, source, index)));
@@ -270,12 +279,13 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>(RP2350/PIO v1) MOV RXFIFO[index], ISR — write ISR to RX FIFO slot 0..3.</summary>
+        /// <exception cref="ArgumentException">RX FIFO index must be 0..3.</exception>
         public PioInstructionRef MovToRxFifo(int index)
         {
             RequireV1("MOV RXFIFO[]");
             if (index < 0 || index > 3)
             {
-                throw new ArgumentException("RX FIFO index must be 0..3.");
+                throw new ArgumentException();
             }
 
             return new PioInstructionRef(this, Add(PioEncoder.MovToRxFifo(index)));
@@ -289,12 +299,13 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>(RP2350/PIO v1) MOV OSR, RXFIFO[index] — read RX FIFO slot 0..3 into OSR.</summary>
+        /// <exception cref="ArgumentException">RX FIFO index must be 0..3.</exception>
         public PioInstructionRef MovFromRxFifo(int index)
         {
             RequireV1("MOV OSR, RXFIFO[]");
             if (index < 0 || index > 3)
             {
-                throw new ArgumentException("RX FIFO index must be 0..3.");
+                throw new ArgumentException();
             }
 
             return new PioInstructionRef(this, Add(PioEncoder.MovFromRxFifo(index)));
@@ -316,22 +327,24 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>IRQ &lt;index&gt; [clear] [wait].</summary>
+        /// <exception cref="ArgumentException">IRQ index must be 0..7.</exception>
         public PioInstructionRef Irq(int index, bool clear = false, bool wait = false)
         {
             if (index < 0 || index > 7)
             {
-                throw new ArgumentException("IRQ index must be 0..7.");
+                throw new ArgumentException();
             }
 
             return new PioInstructionRef(this, Add(PioEncoder.Irq(clear, wait, index)));
         }
 
         /// <summary>SET &lt;dest&gt;, &lt;value&gt; (0..31).</summary>
+        /// <exception cref="ArgumentException">Set value must be 0..31.</exception>
         public PioInstructionRef Set(PioDest dest, int value)
         {
             if (value < 0 || value > 31)
             {
-                throw new ArgumentException("Set value must be 0..31.");
+                throw new ArgumentException();
             }
 
             RequireSetDest(dest);
@@ -351,17 +364,20 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// finished <see cref="PioProgram"/>. Throws with a clear message on any
         /// out-of-range delay/side value, unbound label, or oversized program.
         /// </summary>
+        /// <exception cref="InvalidOperationException">Program is empty.</exception>
+        /// <exception cref="InvalidOperationException">PIO program exceeds 32 instructions (</exception>
+        /// <exception cref="InvalidOperationException">Unbound label referenced by JMP at offset </exception>
         public PioProgram Build()
         {
             int count = _count;
             if (count == 0)
             {
-                throw new InvalidOperationException("Program is empty.");
+                throw new InvalidOperationException();
             }
 
             if (count > MaxInstructions)
             {
-                throw new InvalidOperationException("PIO program exceeds 32 instructions (" + count + ").");
+                throw new InvalidOperationException();
             }
 
             int maxDelay = MaxDelay;
@@ -378,7 +394,7 @@ namespace nanoFramework.Hardware.Pico.Pio
                 {
                     if (jmpLabel.Address < 0)
                     {
-                        throw new InvalidOperationException("Unbound label referenced by JMP at offset " + i + ".");
+                        throw new InvalidOperationException();
                     }
 
                     baseBits = (ushort)(baseBits | (jmpLabel.Address & 0x1F));
@@ -480,7 +496,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             if (bitCount < 1 || bitCount > 32)
             {
-                throw new ArgumentException("Bit count must be 1..32.");
+                throw new ArgumentException();
             }
         }
 
@@ -488,7 +504,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             if (threshold < 1 || threshold > 32)
             {
-                throw new ArgumentException("Shift threshold must be 1..32.");
+                throw new ArgumentException();
             }
         }
 
@@ -496,7 +512,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             if (dest != PioDest.Pins && dest != PioDest.X && dest != PioDest.Y && dest != PioDest.PinDirs)
             {
-                throw new ArgumentException("SET destination must be Pins, X, Y, or PinDirs.");
+                throw new ArgumentException();
             }
         }
 
@@ -505,7 +521,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             // Pins, X, Y, Null, PinDirs, Pc, Isr, Exec are all valid (every 3-bit code).
             if ((int)dest < 0 || (int)dest > 7)
             {
-                throw new ArgumentException("Invalid OUT destination.");
+                throw new ArgumentException();
             }
         }
 
@@ -514,7 +530,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             if (source != PioSrc.Pins && source != PioSrc.X && source != PioSrc.Y &&
                 source != PioSrc.Null && source != PioSrc.Isr && source != PioSrc.Osr)
             {
-                throw new ArgumentException("IN source must be Pins, X, Y, Null, Isr, or Osr.");
+                throw new ArgumentException();
             }
         }
 
@@ -523,7 +539,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             if (dest != PioDest.Pins && dest != PioDest.X && dest != PioDest.Y &&
                 dest != PioDest.Exec && dest != PioDest.Pc && dest != PioDest.Isr && dest != PioDest.Osr)
             {
-                throw new ArgumentException("MOV destination must be Pins, X, Y, Exec, Pc, Isr, or Osr.");
+                throw new ArgumentException();
             }
         }
 
@@ -532,7 +548,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             // Pins, X, Y, Null, Status, Isr, Osr are valid MOV sources.
             if ((int)src < 0 || (int)src > 7)
             {
-                throw new ArgumentException("Invalid MOV source.");
+                throw new ArgumentException();
             }
         }
     }
