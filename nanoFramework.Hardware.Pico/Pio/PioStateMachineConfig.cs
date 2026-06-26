@@ -287,8 +287,17 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Overrides the wrap region (absolute program offsets). Normally seeded by FromProgram.</summary>
+        /// <param name="wrapTarget">The PC to wrap back to (0..31).</param>
+        /// <param name="wrap">The last PC before wrapping (0..31), at or after <paramref name="wrapTarget"/>.</param>
+        /// <returns>This configuration, for chaining.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">A value is outside 0..31, or <paramref name="wrapTarget"/> is past <paramref name="wrap"/>.</exception>
         public PioStateMachineConfig Wrap(int wrapTarget, int wrap)
         {
+            if (wrapTarget < 0 || wrapTarget > 31 || wrap < 0 || wrap > 31 || wrapTarget > wrap)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
             _wrapTarget = wrapTarget;
             _wrap = wrap;
             return this;
@@ -337,6 +346,12 @@ namespace nanoFramework.Hardware.Pico.Pio
             CheckWindow(_outBase, _outCount);
             CheckWindow(_setBase, _setCount);
             CheckWindow(_sideSetBase, _sideSetCount);
+
+            // wrap/wrap-target are absolute PCs; reject out-of-range or forward-wrapping values
+            if (_wrapTarget < 0 || _wrapTarget > 31 || _wrap < 0 || _wrap > 31 || _wrapTarget > _wrap)
+            {
+                throw new ArgumentException();
+            }
 
             uint[] b = new uint[BlobLength];
             b[IdxOutBase] = (uint)Rel(_outBase);

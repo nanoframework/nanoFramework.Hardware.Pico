@@ -110,16 +110,24 @@ namespace nanoFramework.Hardware.Pico.Pio
         public PioLabel DefineLabel()
         {
             // reference type so MarkLabel can bind the address in place
-            return new PioLabel(_labelCount++);
+            return new PioLabel(_labelCount++, this);
         }
 
         /// <summary>Binds a label to the current program offset.</summary>
+        /// <param name="label">The label to bind, created by this assembler's <see cref="DefineLabel"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="label"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="label"/> belongs to another assembler.</exception>
         /// <exception cref="InvalidOperationException">Label already marked.</exception>
         public void MarkLabel(PioLabel label)
         {
             if (label == null)
             {
                 throw new ArgumentNullException();
+            }
+
+            if (!object.ReferenceEquals(label.Owner, this))
+            {
+                throw new ArgumentException();
             }
 
             if (label.Address >= 0)
@@ -201,11 +209,18 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>JMP &lt;cond&gt; &lt;label&gt;.</summary>
+        /// <exception cref="ArgumentNullException"><paramref name="target"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="target"/> belongs to another assembler.</exception>
         public PioInstructionRef Jmp(PioCondition condition, PioLabel target)
         {
             if (target == null)
             {
                 throw new ArgumentNullException();
+            }
+
+            if (!object.ReferenceEquals(target.Owner, this))
+            {
+                throw new ArgumentException();
             }
 
             int index = Add(PioEncoder.Jmp(condition, 0));
@@ -455,6 +470,12 @@ namespace nanoFramework.Hardware.Pico.Pio
 
             int wrapTarget = _wrapTarget >= 0 ? _wrapTarget : 0;
             int wrap = _wrap >= 0 ? _wrap : count - 1;
+
+            // wrap and wrap-target must be valid PCs in this program, wrapping back not forward
+            if (wrapTarget >= count || wrap >= count || wrapTarget > wrap)
+            {
+                throw new InvalidOperationException();
+            }
 
             return new PioProgram(
                 words,
