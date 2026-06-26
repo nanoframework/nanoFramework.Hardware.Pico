@@ -44,6 +44,8 @@ namespace nanoFramework.Hardware.Pico.Pio
         private bool _autoPush = false;
         private int _pushThreshold = 32;
 
+        #region Construction
+
         /// <summary>Creates an assembler with default options (no side-set, RP2040).</summary>
         public PioAssembler() : this(null)
         {
@@ -101,7 +103,9 @@ namespace nanoFramework.Hardware.Pico.Pio
             }
         }
 
-        // ---- labels -------------------------------------------------------
+        #endregion
+
+        #region Labels and directives
 
         /// <summary>Allocates an unbound label. Place it later with <see cref="MarkLabel"/>.</summary>
         public PioLabel DefineLabel()
@@ -127,8 +131,6 @@ namespace nanoFramework.Hardware.Pico.Pio
 
             label.Address = _count;
         }
-
-        // ---- directives ---------------------------------------------------
 
         /// <summary>Marks the wrap-target (PC wraps back here). Defaults to offset 0.</summary>
         /// <exception cref="InvalidOperationException">.wrap_target already set.</exception>
@@ -190,7 +192,9 @@ namespace nanoFramework.Hardware.Pico.Pio
             _pushThreshold = threshold;
         }
 
-        // ---- instructions -------------------------------------------------
+        #endregion
+
+        #region Instructions
 
         /// <summary>JMP &lt;label&gt; (unconditional).</summary>
         public PioInstructionRef Jmp(PioLabel target)
@@ -369,7 +373,9 @@ namespace nanoFramework.Hardware.Pico.Pio
             return new PioInstructionRef(this, Add(PioEncoder.Nop()));
         }
 
-        // ---- build --------------------------------------------------------
+        #endregion
+
+        #region Build
 
         /// <summary>
         /// Resolves labels, packs delay/side-set, validates ranges, and returns the
@@ -469,8 +475,6 @@ namespace nanoFramework.Hardware.Pico.Pio
                 _version);
         }
 
-        // ---- internals ----------------------------------------------------
-
         // Emits an instruction's base bits into the next slot and returns its index. No allocation.
         // The counter is allowed to run past MaxInstructions so Build can report the overflow; slots
         // beyond the buffer are simply not written (the program is already invalid).
@@ -508,6 +512,10 @@ namespace nanoFramework.Hardware.Pico.Pio
                 _sideValue[index] = value;
             }
         }
+
+        #endregion
+
+        #region Validation helpers
 
         private static void ValidateBitCount(int bitCount)
         {
@@ -568,5 +576,7 @@ namespace nanoFramework.Hardware.Pico.Pio
                 throw new ArgumentException();
             }
         }
+        #endregion
+
     }
 }
