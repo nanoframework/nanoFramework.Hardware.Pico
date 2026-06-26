@@ -76,7 +76,9 @@ namespace nanoFramework.Hardware.Pico.Pio
         private int _setBase, _setCount;
         private int _sideSetBase;
         private int _inBase;
+        private bool _inBaseSet;
         private int _jmpPin;
+        private bool _jmpPinSet;
 
         private int _sideSetCount;
         private bool _sideSetOpt;
@@ -181,6 +183,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             ValidatePinBase(basePin);
             _inBase = basePin;
+            _inBaseSet = true;
             return this;
         }
 
@@ -189,6 +192,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             ValidatePinBase(pin);
             _jmpPin = pin;
+            _jmpPinSet = true;
             return this;
         }
 
@@ -342,10 +346,12 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <summary>Flattens the configuration into the fixed-layout blob handed to native interop.</summary>
         public uint[] ToBlob()
         {
-            // PINCTRL fields are relative to the GPIO base, so subtract it
+            // PINCTRL fields are relative to the GPIO base, so every mapped pin must sit in the window
             CheckWindow(_outBase, _outCount);
             CheckWindow(_setBase, _setCount);
             CheckWindow(_sideSetBase, _sideSetCount);
+            CheckWindow(_inBase, _inBaseSet ? 1 : 0);
+            CheckWindow(_jmpPin, _jmpPinSet ? 1 : 0);
 
             // wrap/wrap-target are absolute PCs; reject out-of-range or forward-wrapping values
             if (_wrapTarget < 0 || _wrapTarget > 31 || _wrap < 0 || _wrap > 31 || _wrapTarget > _wrap)
