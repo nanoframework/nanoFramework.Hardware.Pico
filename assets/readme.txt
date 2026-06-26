@@ -6,7 +6,7 @@
                                                                                
 ===================================================================================
 
-API docs: https://docs.nanoframework.net/api/nanoFramework.Hardware.Esp32.html
+API docs: https://docs.nanoframework.net/api/nanoFramework.Hardware.Pico.html
 
 Browse our samples repository: https://github.com/nanoframework/samples
 
