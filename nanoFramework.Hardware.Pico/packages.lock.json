@@ -7,6 +7,12 @@
         "requested": "[1.17.11, 1.17.11]",
         "resolved": "1.17.11",
         "contentHash": "EVpP9h9uzm4OweXrJ92f0NTxgBp46Qksv8eME0kwCcSAG3y674G+UdP1NvuOjIqTqPb3QOCSfdd654xCMwsV4Q=="
+      },
+      "nanoFramework.Runtime.Events": {
+        "type": "Direct",
+        "requested": "[1.11.32, 1.11.32]",
+        "resolved": "1.11.32",
+        "contentHash": "NyLUIwJDlpl5VKSd+ljmdDtO2WHHBvPvruo1ccaL+hd79z+6XMYze1AccOVXKGiZenLBCwDmFHwpgIQyHkM7GA=="
       }
     }
   }

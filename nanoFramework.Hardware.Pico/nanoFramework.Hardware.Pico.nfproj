@@ -36,12 +36,24 @@
   </PropertyGroup>
   <Import Project="$(NanoFrameworkProjectSystemPath)NFProjectSystem.props" Condition="Exists('$(NanoFrameworkProjectSystemPath)NFProjectSystem.props')" />
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Pio.cs" />
+    <Compile Include="PioAssembler.cs" />
+    <Compile Include="PioBlock.cs" />
+    <Compile Include="PioEncoder.cs" />
+    <Compile Include="PioEnums.cs" />
+    <Compile Include="PioInstructionRef.cs" />
+    <Compile Include="PioLabel.cs" />
+    <Compile Include="PioProgram.cs" />
+    <Compile Include="PioStateMachine.cs" />
+    <Compile Include="PioStateMachineConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib">
       <HintPath>..\packages\nanoFramework.CoreLibrary.1.17.11\lib\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="nanoFramework.Runtime.Events">
+      <HintPath>..\packages\nanoFramework.Runtime.Events.1.11.32\lib\nanoFramework.Runtime.Events.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
