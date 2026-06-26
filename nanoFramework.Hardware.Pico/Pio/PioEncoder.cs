@@ -77,8 +77,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         // ---- RP2350 (PIO v1) indexed RX-FIFO MOV --------------------------
-        // Encoded in the PUSH/PULL opcode space (0b100) with arg2 != 0: bit4 of arg2 marks the
-        // v1 form, bit3 selects a fixed index (else the Y register), and arg1 bit2 the direction.
+        // PUSH/PULL opcode space, arg2 != 0: bit4 v1 form, bit3 fixed index, arg1 bit2 direction
 
         /// <summary>(v1) MOV RXFIFO[index], ISR — write ISR to RX FIFO slot 0..3.</summary>
         public static ushort MovToRxFifo(int index) => (ushort)(OpPush | 0x18 | (index & 0x3));

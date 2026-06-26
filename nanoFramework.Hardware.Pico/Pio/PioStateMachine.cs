@@ -222,7 +222,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// </summary>
         public void SetConsecutivePinDirs(int basePin, int count, bool output)
         {
-            // 0..47 covers RP2350; the native side enforces the per-chip ceiling (29 on RP2040).
+            // native side enforces the per-chip GPIO ceiling
             if (basePin < 0 || basePin > 47 || count < 0 || basePin + count > 48)
             {
                 throw new ArgumentOutOfRangeException(nameof(basePin));

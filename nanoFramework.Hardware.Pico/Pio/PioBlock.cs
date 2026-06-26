@@ -115,8 +115,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// </summary>
         public void InitGpio(int pin)
         {
-            // RP2040 has 30 GPIOs (0..29); RP2350 has up to 48 (0..47). The native side enforces
-            // the per-chip ceiling, so accept the wider range here rather than capping at RP2040.
+            // native side enforces the per-chip GPIO ceiling
             if (pin < 0 || pin > 47)
             {
                 throw new ArgumentOutOfRangeException(nameof(pin));

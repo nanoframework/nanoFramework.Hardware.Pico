@@ -14,11 +14,10 @@ namespace nanoFramework.Hardware.Pico.Pio
     /// </summary>
     public sealed class PioAssembler
     {
-        // PIO instruction memory holds at most 32 entries; size the buffers to that.
+        // PIO instruction memory holds at most 32 entries
         private const int MaxInstructions = 32;
 
-        // Parallel arrays describing each emitted instruction (one slot per index). Allocated
-        // once below, never per instruction — that is the whole point of the design.
+        // per-instruction parallel arrays, allocated once
         private readonly ushort[] _baseBits;
         private readonly int[] _delay;
         private readonly int[] _sideValue;
@@ -77,7 +76,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             _sideSetOpt = options.SideSetOpt;
             _sideSetPinDirs = options.SideSetPinDirs;
 
-            // The only instruction buffers, allocated once for the lifetime of the assembler.
+            // allocated once for the assembler's lifetime
             _baseBits = new ushort[MaxInstructions];
             _delay = new int[MaxInstructions];
             _sideValue = new int[MaxInstructions];
@@ -110,8 +109,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <summary>Allocates an unbound label. Place it later with <see cref="MarkLabel"/>.</summary>
         public PioLabel DefineLabel()
         {
-            // A label is a tiny long-lived object (at most ~32 per program), not per-instruction
-            // churn, and it needs reference semantics so MarkLabel can bind its address in place.
+            // reference type so MarkLabel can bind the address in place
             return new PioLabel(_labelCount++);
         }
 
@@ -475,9 +473,7 @@ namespace nanoFramework.Hardware.Pico.Pio
                 _version);
         }
 
-        // Emits an instruction's base bits into the next slot and returns its index. No allocation.
-        // The counter is allowed to run past MaxInstructions so Build can report the overflow; slots
-        // beyond the buffer are simply not written (the program is already invalid).
+        // emit base bits to the next slot; counter may exceed MaxInstructions so Build can report it
         private int Add(ushort baseBits)
         {
             int index = _count;

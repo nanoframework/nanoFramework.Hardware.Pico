@@ -14,8 +14,7 @@ namespace nanoFramework.Hardware.Pico.Pio
     /// </summary>
     public sealed class PioStateMachineConfig
     {
-        // Stable layout of the flattened config blob shared with the native layer.
-        // Native code reads these indices to rebuild a pio_sm_config.
+        // flattened config blob layout shared with the native layer
         /// <summary>Number of entries in the flattened configuration blob.</summary>
         public const int BlobLength = 27;
         /// <summary>Blob index of the OUT pin base.</summary>
@@ -334,8 +333,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <summary>Flattens the configuration into the fixed-layout blob handed to native interop.</summary>
         public uint[] ToBlob()
         {
-            // GPIO base (RP2350): pin mappings are absolute; the 5-bit PINCTRL fields are relative
-            // to the block's GPIO base, so subtract it here (the GPIOBASE register carries the base).
+            // PINCTRL fields are relative to the GPIO base, so subtract it
             CheckWindow(_outBase, _outCount);
             CheckWindow(_setBase, _setCount);
             CheckWindow(_sideSetBase, _sideSetCount);
