@@ -14,6 +14,7 @@ namespace nanoFramework.Hardware.Pico.Pio
     {
         // RP2040 and RP2350A expose 2 PIO blocks; RP2350 adds a third (PIO2).
         private static readonly PioBlock[] _blocks = new PioBlock[3];
+        private static readonly object _lock = new object();
 
         /// <summary>
         /// Gets the PIO block at <paramref name="index"/> (0 or 1; 2 is RP2350-only).
@@ -25,12 +26,15 @@ namespace nanoFramework.Hardware.Pico.Pio
                 throw new System.ArgumentOutOfRangeException();
             }
 
-            if (_blocks[index] == null)
+            lock (_lock)
             {
-                _blocks[index] = new PioBlock(index);
-            }
+                if (_blocks[index] == null)
+                {
+                    _blocks[index] = new PioBlock(index);
+                }
 
-            return _blocks[index];
+                return _blocks[index];
+            }
         }
     }
 }

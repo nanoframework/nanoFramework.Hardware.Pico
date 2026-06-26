@@ -41,11 +41,20 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <paramref name="offset"/> (maps to <c>pio_sm_init</c>). The configuration is
         /// flattened to a blob and rebuilt into a <c>pio_sm_config</c> natively.
         /// </summary>
+        /// <param name="offset">The instruction-memory offset (0..31) to start at.</param>
+        /// <param name="config">The state-machine configuration.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="config"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is greater than 31.</exception>
         public void Init(uint offset, PioStateMachineConfig config)
         {
             if (config == null)
             {
                 throw new ArgumentNullException(nameof(config));
+            }
+
+            if (offset > 31)
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
             NativeInit(_block.Index, _sm, (int)offset, config.ToBlob());

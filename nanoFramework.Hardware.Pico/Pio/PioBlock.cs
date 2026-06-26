@@ -25,6 +25,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 
         private NativeEventDispatcher _irqDispatcher;
         private PioInterruptEventHandler _interruptCallbacks;
+        private readonly object _irqLock = new object();
 
         /// <summary>Initializes a new instance of the <see cref="PioBlock"/> class.</summary>
         internal PioBlock(int index)
@@ -125,8 +126,17 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Routes <paramref name="count"/> consecutive GPIOs from <paramref name="basePin"/> to this block.</summary>
+        /// <param name="basePin">The first GPIO to route.</param>
+        /// <param name="count">The number of consecutive GPIOs to route.</param>
+        /// <exception cref="ArgumentOutOfRangeException">The span falls outside 0..47.</exception>
         public void InitGpioRange(int basePin, int count)
         {
+            // validate the whole span first, so a bad range can't leave the block partly routed
+            if (basePin < 0 || count < 0 || count > 48 || basePin > 48 - count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(basePin));
+            }
+
             for (int i = 0; i < count; i++)
             {
                 InitGpio(basePin + i);
@@ -165,26 +175,32 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             add
             {
-                if (_irqDispatcher == null)
+                lock (_irqLock)
                 {
-                    _irqDispatcher = new NativeEventDispatcher("PioIrqDriver", (ulong)_index);
-                    _irqDispatcher.OnInterrupt += OnNativeIrq;
-                    _irqDispatcher.EnableInterrupt();
-                }
+                    if (_irqDispatcher == null)
+                    {
+                        _irqDispatcher = new NativeEventDispatcher("PioIrqDriver", (ulong)_index);
+                        _irqDispatcher.OnInterrupt += OnNativeIrq;
+                        _irqDispatcher.EnableInterrupt();
+                    }
 
-                _interruptCallbacks += value;
+                    _interruptCallbacks += value;
+                }
             }
 
             remove
             {
-                _interruptCallbacks -= value;
-
-                if (_interruptCallbacks == null && _irqDispatcher != null)
+                lock (_irqLock)
                 {
-                    _irqDispatcher.OnInterrupt -= OnNativeIrq;
-                    _irqDispatcher.DisableInterrupt();
-                    _irqDispatcher.Dispose();
-                    _irqDispatcher = null;
+                    _interruptCallbacks -= value;
+
+                    if (_interruptCallbacks == null && _irqDispatcher != null)
+                    {
+                        _irqDispatcher.OnInterrupt -= OnNativeIrq;
+                        _irqDispatcher.DisableInterrupt();
+                        _irqDispatcher.Dispose();
+                        _irqDispatcher = null;
+                    }
                 }
             }
         }
