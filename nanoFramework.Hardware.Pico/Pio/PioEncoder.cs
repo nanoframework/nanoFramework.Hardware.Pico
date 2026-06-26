@@ -35,26 +35,50 @@ namespace nanoFramework.Hardware.Pico.Pio
         internal const int OpSet = 0xE000;
 
         /// <summary>JMP &lt;cond&gt; &lt;addr&gt;. Address is an absolute program offset 0..31.</summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="address"/> is outside 0..31.</exception>
         public static ushort Jmp(PioCondition condition, int address)
         {
-            return (ushort)(OpJmp | (((int)condition & 0x7) << 5) | (address & 0x1F));
+            if (address < 0 || address > 31)
+            {
+                throw new ArgumentOutOfRangeException(nameof(address));
+            }
+
+            return (ushort)(OpJmp | (((int)condition & 0x7) << 5) | address);
         }
 
         /// <summary>WAIT &lt;polarity&gt; &lt;source&gt; &lt;index&gt;.</summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside 0..31.</exception>
         public static ushort Wait(bool polarity, PioWaitSource source, int index)
         {
-            return (ushort)(OpWait | (polarity ? 0x80 : 0) | (((int)source & 0x3) << 5) | (index & 0x1F));
+            if (index < 0 || index > 31)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            return (ushort)(OpWait | (polarity ? 0x80 : 0) | (((int)source & 0x3) << 5) | index);
         }
 
         /// <summary>IN &lt;source&gt;, &lt;bitCount&gt; (1..32; 32 encodes as 0).</summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="bitCount"/> is outside 1..32.</exception>
         public static ushort In(PioSrc source, int bitCount)
         {
+            if (bitCount < 1 || bitCount > 32)
+            {
+                throw new ArgumentOutOfRangeException(nameof(bitCount));
+            }
+
             return (ushort)(OpIn | (((int)source & 0x7) << 5) | (bitCount & 0x1F));
         }
 
         /// <summary>OUT &lt;dest&gt;, &lt;bitCount&gt; (1..32; 32 encodes as 0).</summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="bitCount"/> is outside 1..32.</exception>
         public static ushort Out(PioDest dest, int bitCount)
         {
+            if (bitCount < 1 || bitCount > 32)
+            {
+                throw new ArgumentOutOfRangeException(nameof(bitCount));
+            }
+
             return (ushort)(OpOut | (((int)dest & 0x7) << 5) | (bitCount & 0x1F));
         }
 
@@ -80,27 +104,63 @@ namespace nanoFramework.Hardware.Pico.Pio
         // PUSH/PULL opcode space, arg2 != 0: bit4 v1 form, bit3 fixed index, arg1 bit2 direction
 
         /// <summary>(v1) MOV RXFIFO[index], ISR — write ISR to RX FIFO slot 0..3.</summary>
-        public static ushort MovToRxFifo(int index) => (ushort)(OpPush | 0x18 | (index & 0x3));
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside 0..3.</exception>
+        public static ushort MovToRxFifo(int index)
+        {
+            if (index < 0 || index > 3)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            return (ushort)(OpPush | 0x18 | index);
+        }
 
         /// <summary>(v1) MOV RXFIFO[Y], ISR — write ISR to the RX FIFO slot selected by Y.</summary>
-        public static ushort MovToRxFifoIndexedY() => (ushort)(OpPush | 0x10);
+        public static ushort MovToRxFifoIndexedY()
+        {
+            return (ushort)(OpPush | 0x10);
+        }
 
         /// <summary>(v1) MOV OSR, RXFIFO[index] — read RX FIFO slot 0..3 into OSR.</summary>
-        public static ushort MovFromRxFifo(int index) => (ushort)(OpPush | 0x80 | 0x18 | (index & 0x3));
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside 0..3.</exception>
+        public static ushort MovFromRxFifo(int index)
+        {
+            if (index < 0 || index > 3)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            return (ushort)(OpPush | 0x80 | 0x18 | index);
+        }
 
         /// <summary>(v1) MOV OSR, RXFIFO[Y] — read the RX FIFO slot selected by Y into OSR.</summary>
-        public static ushort MovFromRxFifoIndexedY() => (ushort)(OpPush | 0x80 | 0x10);
+        public static ushort MovFromRxFifoIndexedY()
+        {
+            return (ushort)(OpPush | 0x80 | 0x10);
+        }
 
-        /// <summary>IRQ [clear] [wait] &lt;index&gt;.</summary>
+        /// <summary>IRQ [clear] [wait] &lt;index&gt; (0..7).</summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside 0..7.</exception>
         public static ushort Irq(bool clear, bool wait, int index)
         {
-            return (ushort)(OpIrq | (clear ? 0x40 : 0) | (wait ? 0x20 : 0) | (index & 0x1F));
+            if (index < 0 || index > 7)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            return (ushort)(OpIrq | (clear ? 0x40 : 0) | (wait ? 0x20 : 0) | index);
         }
 
         /// <summary>SET &lt;dest&gt;, &lt;value&gt; (0..31).</summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is outside 0..31.</exception>
         public static ushort Set(PioDest dest, int value)
         {
-            return (ushort)(OpSet | (((int)dest & 0x7) << 5) | (value & 0x1F));
+            if (value < 0 || value > 31)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value));
+            }
+
+            return (ushort)(OpSet | (((int)dest & 0x7) << 5) | value);
         }
 
         /// <summary>NOP is an alias for MOV Y, Y.</summary>
@@ -129,6 +189,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <param name="sideUsed">Whether this instruction asserts a side-set value.</param>
         /// <param name="sideSetCount">Side-set value-bit count (excludes the opt enable bit).</param>
         /// <param name="sideSetOpt">Whether side-set is optional for this program.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="delay"/> or <paramref name="sideValue"/> does not fit its field.</exception>
         public static ushort PackDelaySideSet(
             ushort baseBits,
             int delay,
@@ -138,7 +199,18 @@ namespace nanoFramework.Hardware.Pico.Pio
             bool sideSetOpt)
         {
             int delayBits = DelayBits(sideSetCount, sideSetOpt);
-            int field = delay & ((1 << delayBits) - 1);
+
+            if (delay < 0 || delay > (1 << delayBits) - 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(delay));
+            }
+
+            if (sideUsed && sideSetCount > 0 && (sideValue < 0 || sideValue > (1 << sideSetCount) - 1))
+            {
+                throw new ArgumentOutOfRangeException(nameof(sideValue));
+            }
+
+            int field = delay;
 
             if (sideUsed && sideSetCount > 0)
             {
@@ -147,7 +219,7 @@ namespace nanoFramework.Hardware.Pico.Pio
                     field |= 0x10; // enable bit at top of the 5-bit field (instr bit 12)
                 }
 
-                field |= (sideValue & ((1 << sideSetCount) - 1)) << delayBits;
+                field |= sideValue << delayBits;
             }
 
             return (ushort)(baseBits | (field << 8));
