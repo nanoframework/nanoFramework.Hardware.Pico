@@ -177,11 +177,13 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Changes the clock divider (1.0 .. 65536.0) live and restarts the divider phase.</summary>
+        /// <param name="div">The clock divider, 1.0 to 65536.0.</param>
+        /// <exception cref="ArgumentException"><paramref name="div"/> is outside the 1.0 .. 65536.0 range.</exception>
         public void SetClockDivisor(float div)
         {
             if (div < 1.0f || div > 65536.0f)
             {
-                throw new ArgumentException("Clock divisor must be 1.0..65536.0.");
+                throw new ArgumentException();
             }
 
             int intPart = (int)div;

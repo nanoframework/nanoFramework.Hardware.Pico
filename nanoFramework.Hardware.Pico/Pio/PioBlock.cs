@@ -36,8 +36,12 @@ namespace nanoFramework.Hardware.Pico.Pio
 
         /// <summary>
         /// Loads an assembled program into this block's instruction memory and returns
-        /// the load offset (maps to <c>pio_add_program</c>). Throws if there is no room.
+        /// the load offset (maps to <c>pio_add_program</c>).
         /// </summary>
+        /// <param name="program">The assembled program to load.</param>
+        /// <returns>The instruction-memory offset the program was loaded at.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="program"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">There is no room left in the block to load the program.</exception>
         public uint AddProgram(PioProgram program)
         {
             if (program == null)
@@ -48,13 +52,16 @@ namespace nanoFramework.Hardware.Pico.Pio
             int offset = NativeAddProgram(_index, program.Instructions, program.Length, program.Origin);
             if (offset < 0)
             {
-                throw new InvalidOperationException("No room to load PIO program.");
+                throw new InvalidOperationException();
             }
 
             return (uint)offset;
         }
 
         /// <summary>Removes a previously added program (maps to <c>pio_remove_program</c>).</summary>
+        /// <param name="program">The program previously returned by <see cref="AddProgram"/>.</param>
+        /// <param name="offset">The load offset the program occupies.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="program"/> is <see langword="null"/>.</exception>
         public void RemoveProgram(PioProgram program, uint offset)
         {
             if (program == null)
@@ -66,12 +73,14 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Claims a free state machine on this block (maps to <c>pio_claim_unused_sm</c>).</summary>
+        /// <returns>The newly claimed state machine.</returns>
+        /// <exception cref="InvalidOperationException">All four state machines on the block are already claimed.</exception>
         public PioStateMachine ClaimStateMachine()
         {
             int sm = NativeClaimUnusedSm(_index, true);
             if (sm < 0)
             {
-                throw new InvalidOperationException("No free state machine on this PIO block.");
+                throw new InvalidOperationException();
             }
 
             return new PioStateMachine(this, sm);

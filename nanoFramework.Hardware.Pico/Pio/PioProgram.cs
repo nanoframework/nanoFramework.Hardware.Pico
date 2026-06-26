@@ -96,16 +96,22 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// stand-alone <c>pioasm</c> tool) together with its metadata, so precompiled
         /// programs and inline-assembled ones share the same load/config path.
         /// </summary>
+        /// <param name="instructions">The encoded 16-bit PIO instructions (1..32).</param>
+        /// <param name="wrapTarget">The wrap-target instruction index.</param>
+        /// <param name="wrap">The wrap instruction index.</param>
+        /// <returns>A program wrapping the supplied instructions.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="instructions"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="instructions"/> is empty or longer than 32 instructions.</exception>
         public static PioProgram FromEncoded(ushort[] instructions, int wrapTarget, int wrap)
         {
             if (instructions == null)
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(instructions));
             }
 
             if (instructions.Length == 0 || instructions.Length > 32)
             {
-                throw new ArgumentException("PIO program must be 1..32 instructions.");
+                throw new ArgumentException();
             }
 
             return new PioProgram(
