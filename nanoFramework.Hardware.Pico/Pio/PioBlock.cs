@@ -189,9 +189,19 @@ namespace nanoFramework.Hardware.Pico.Pio
 
                     if (_irqDispatcher == null)
                     {
-                        _irqDispatcher = new NativeEventDispatcher("PioIrqDriver", (ulong)_index);
-                        _irqDispatcher.OnInterrupt += OnNativeIrq;
-                        _irqDispatcher.EnableInterrupt();
+                        try
+                        {
+                            NativeEventDispatcher dispatcher = new NativeEventDispatcher("PioIrqDriver", (ulong)_index);
+                            dispatcher.OnInterrupt += OnNativeIrq;
+                            dispatcher.EnableInterrupt();
+                            _irqDispatcher = dispatcher;
+                        }
+                        catch
+                        {
+                            // arming failed: undo the subscription so no handler is left without native delivery
+                            _interruptCallbacks -= value;
+                            throw;
+                        }
                     }
                 }
             }
