@@ -100,7 +100,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             return (ushort)(OpMov | (((int)dest & 0x7) << 5) | (((int)op & 0x3) << 3) | ((int)src & 0x7));
         }
 
-        // ---- RP2350 (PIO v1) indexed RX-FIFO MOV --------------------------
+        #region RP2350 (PIO v1) indexed RX-FIFO MOV
         // PUSH/PULL opcode space, arg2 != 0: bit4 v1 form, bit3 fixed index, arg1 bit2 direction
 
         /// <summary>(v1) MOV RXFIFO[index], ISR — write ISR to RX FIFO slot 0..3.</summary>
@@ -138,6 +138,8 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             return (ushort)(OpPush | 0x80 | 0x10);
         }
+
+        #endregion
 
         /// <summary>IRQ [clear] [wait] &lt;index&gt; (0..7).</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside 0..7.</exception>

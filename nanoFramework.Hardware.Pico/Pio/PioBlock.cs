@@ -233,7 +233,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             }
         }
 
-        // ---- native interop (implemented in nf-interpreter) ---------------
+        #region Native interop (implemented in nf-interpreter)
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         private static extern int NativeAddProgram(int block, ushort[] instructions, int length, int origin);
@@ -252,5 +252,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         private static extern void NativeClearIrq(int block, int irq);
+
+        #endregion
     }
 }

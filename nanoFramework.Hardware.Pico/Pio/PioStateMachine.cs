@@ -326,7 +326,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             }
         }
 
-        // ---- native interop (implemented in nf-interpreter) ---------------
+        #region Native interop (implemented in nf-interpreter)
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         private static extern void NativeInit(int block, int sm, int offset, uint[] configBlob);
@@ -378,5 +378,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         private static extern void NativeSetClockDivisor(int block, int sm, int clkDivInt, int clkDivFrac);
+
+        #endregion
     }
 }
