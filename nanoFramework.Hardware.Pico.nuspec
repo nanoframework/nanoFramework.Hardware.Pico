@@ -18,9 +18,10 @@
     <description>This package includes the nanoFramework.Hardware.Pico assembly for .NET nanoFramework C# projects.
 The nanoFramework.Hardware.Pico assembly contains functions specific to the Raspberry Pico devices like the RP2040 and RP2350.
 This package requires a target with nanoFramework.Hardware.Pico v$nativeVersion$ (checksum $checksum$).</description>
-    <tags>nanoFramework C# csharp netmf netnf Pico</tags>
+    <tags>nanoFramework C# csharp netmf netnf Pico RP2040 RP2350 PIO</tags>
     <dependencies>
       <dependency id="nanoFramework.CoreLibrary" version="1.17.11" />
+      <dependency id="nanoFramework.Runtime.Events" version="1.11.32" />
     </dependencies>
   </metadata>
   <files>

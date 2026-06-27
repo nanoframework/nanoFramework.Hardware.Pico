@@ -18,6 +18,7 @@
     <NF_IsCoreLibrary>True</NF_IsCoreLibrary>
     <DocumentationFile>bin\$(Configuration)\nanoFramework.Hardware.Pico.xml</DocumentationFile>
     <RestoreLockedMode Condition="'$(TF_BUILD)' == 'True' or '$(ContinuousIntegrationBuild)' == 'True'">true</RestoreLockedMode>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
     <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -36,12 +37,34 @@
   </PropertyGroup>
   <Import Project="$(NanoFrameworkProjectSystemPath)NFProjectSystem.props" Condition="Exists('$(NanoFrameworkProjectSystemPath)NFProjectSystem.props')" />
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Pio\Pio.cs" />
+    <Compile Include="Pio\PioAssembler.cs" />
+    <Compile Include="Pio\PioAssemblerOptions.cs" />
+    <Compile Include="Pio\PioBlock.cs" />
+    <Compile Include="Pio\PioCondition.cs" />
+    <Compile Include="Pio\PioDest.cs" />
+    <Compile Include="Pio\PioEncoder.cs" />
+    <Compile Include="Pio\PioFifoJoin.cs" />
+    <Compile Include="Pio\PioInstructionRef.cs" />
+    <Compile Include="Pio\PioLabel.cs" />
+    <Compile Include="Pio\PioMovOp.cs" />
+    <Compile Include="Pio\PioMovStatusSel.cs" />
+    <Compile Include="Pio\PioProgram.cs" />
+    <Compile Include="Pio\PioProgramOptions.cs" />
+    <Compile Include="Pio\PioShiftDir.cs" />
+    <Compile Include="Pio\PioSrc.cs" />
+    <Compile Include="Pio\PioStateMachine.cs" />
+    <Compile Include="Pio\PioStateMachineConfig.cs" />
+    <Compile Include="Pio\PioVersion.cs" />
+    <Compile Include="Pio\PioWaitSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib">
-      <HintPath>..\packages\nanoFramework.CoreLibrary.1.17.11\lib\mscorlib.dll</HintPath>
+      <HintPath>..\packages\nanoFramework.CoreLibrary.1.17.12\lib\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="nanoFramework.Runtime.Events">
+      <HintPath>..\packages\nanoFramework.Runtime.Events.1.11.32\lib\nanoFramework.Runtime.Events.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
