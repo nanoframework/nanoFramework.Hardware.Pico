@@ -203,7 +203,8 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ArgumentException">Clock divisor must be 1.0..65536.0.</exception>
         public PioStateMachineConfig ClockDivisor(float div)
         {
-            if (div < 1.0f || div > 65536.0f)
+            // closed-range test so NaN (which fails every ordered comparison) is rejected too
+            if (!(div >= 1.0f && div <= 65536.0f))
             {
                 throw new ArgumentException();
             }
@@ -240,12 +241,13 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ArgumentException">System clock must be positive.</exception>
         public PioStateMachineConfig ClockFromFrequency(float frequencyHz, float sysClockHz = DefaultSystemClockHz)
         {
-            if (frequencyHz <= 0f)
+            // ordered test so NaN (which fails every ordered comparison) is rejected too
+            if (!(frequencyHz > 0f))
             {
                 throw new ArgumentException();
             }
 
-            if (sysClockHz <= 0f)
+            if (!(sysClockHz > 0f))
             {
                 throw new ArgumentException();
             }

@@ -127,6 +127,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <returns>A program wrapping the supplied instructions and metadata.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="instructions"/> or <paramref name="options"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="instructions"/> is empty or longer than 32 instructions.</exception>
+        /// <exception cref="ArgumentException"><paramref name="wrapTarget"/>/<paramref name="wrap"/> are outside the program, or an <paramref name="options"/> field is out of range.</exception>
         public static PioProgram FromEncoded(ushort[] instructions, int wrapTarget, int wrap, PioProgramOptions options)
         {
             if (instructions == null)
@@ -139,7 +140,24 @@ namespace nanoFramework.Hardware.Pico.Pio
                 throw new ArgumentNullException(nameof(options));
             }
 
-            if (instructions.Length == 0 || instructions.Length > 32)
+            int length = instructions.Length;
+            if (length == 0 || length > 32)
+            {
+                throw new ArgumentException();
+            }
+
+            // wrap/wrap-target must be PCs inside the program, wrapping back not forward (matches Build)
+            if (wrapTarget < 0 || wrapTarget >= length || wrap < 0 || wrap >= length || wrapTarget > wrap)
+            {
+                throw new ArgumentException();
+            }
+
+            // metadata must satisfy the same ranges PioAssembler.Build enforces
+            if (options.Origin < -1 || options.Origin > 31 ||
+                options.SideSetCount < 0 || options.SideSetCount > 5 ||
+                options.SideSetCount + (options.SideSetOpt ? 1 : 0) > 5 ||
+                options.PullThreshold < 1 || options.PullThreshold > 32 ||
+                options.PushThreshold < 1 || options.PushThreshold > 32)
             {
                 throw new ArgumentException();
             }

@@ -189,6 +189,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <param name="sideUsed">Whether this instruction asserts a side-set value.</param>
         /// <param name="sideSetCount">Side-set value-bit count (excludes the opt enable bit).</param>
         /// <param name="sideSetOpt">Whether side-set is optional for this program.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="sideSetCount"/> (plus the optional enable bit) exceeds the 5-bit delay/side field.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="delay"/> or <paramref name="sideValue"/> does not fit its field.</exception>
         public static ushort PackDelaySideSet(
             ushort baseBits,
@@ -198,6 +199,12 @@ namespace nanoFramework.Hardware.Pico.Pio
             int sideSetCount,
             bool sideSetOpt)
         {
+            // guard the layout so the packed field can't spill past bits [12:8] into the opcode
+            if (sideSetCount < 0 || sideSetCount > 5 || sideSetCount + (sideSetOpt ? 1 : 0) > 5)
+            {
+                throw new ArgumentOutOfRangeException(nameof(sideSetCount));
+            }
+
             int delayBits = DelayBits(sideSetCount, sideSetOpt);
 
             if (delay < 0 || delay > (1 << delayBits) - 1)

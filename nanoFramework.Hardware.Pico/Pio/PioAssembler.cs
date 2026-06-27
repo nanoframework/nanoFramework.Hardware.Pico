@@ -428,7 +428,13 @@ namespace nanoFramework.Hardware.Pico.Pio
                         throw new InvalidOperationException();
                     }
 
-                    baseBits = (ushort)(baseBits | (jmpLabel.Address & 0x1F));
+                    // a resolved target must be a real PC in this program, never masked past the end
+                    if (jmpLabel.Address >= count)
+                    {
+                        throw new InvalidOperationException();
+                    }
+
+                    baseBits = (ushort)(baseBits | jmpLabel.Address);
                 }
 
                 int delay = _delay[i];

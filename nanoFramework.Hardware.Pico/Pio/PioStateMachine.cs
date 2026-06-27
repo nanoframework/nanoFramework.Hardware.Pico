@@ -17,14 +17,19 @@ namespace nanoFramework.Hardware.Pico.Pio
     {
         private readonly PioBlock _block;
         private readonly int _sm;
+        private readonly bool _owned;
         private bool _disposed;
         private bool _enabled;
 
         /// <summary>Initializes a new instance of the <see cref="PioStateMachine"/> class.</summary>
-        internal PioStateMachine(PioBlock block, int sm)
+        /// <param name="block">The owning PIO block.</param>
+        /// <param name="sm">The state-machine index (0..3).</param>
+        /// <param name="owned"><see langword="true"/> when this wrapper claimed the SM and must release it on dispose.</param>
+        internal PioStateMachine(PioBlock block, int sm, bool owned)
         {
             _block = block;
             _sm = sm;
+            _owned = owned;
         }
 
         /// <summary>State machine index (0..3).</summary>
@@ -88,6 +93,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             while (NativeTxFull(_block.Index, _sm))
             {
                 System.Threading.Thread.Sleep(0);
+                if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
             }
 
             NativePutBlocking(_block.Index, _sm, value);
@@ -102,6 +108,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             while (NativeRxEmpty(_block.Index, _sm))
             {
                 System.Threading.Thread.Sleep(0);
+                if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
             }
 
             return NativeGetBlocking(_block.Index, _sm);
@@ -235,7 +242,8 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
 
-            if (div < 1.0f || div > 65536.0f)
+            // closed-range test so NaN (which fails every ordered comparison) is rejected too
+            if (!(div >= 1.0f && div <= 65536.0f))
             {
                 throw new ArgumentException();
             }
@@ -309,8 +317,13 @@ namespace nanoFramework.Hardware.Pico.Pio
 
             _disposed = true;
             _enabled = false;
-            NativeSetEnabled(_block.Index, _sm, false);
-            NativeUnclaim(_block.Index, _sm);
+
+            // only a wrapper that claimed the SM may stop or release it; a fixed-index view must not touch someone else's
+            if (_owned)
+            {
+                NativeSetEnabled(_block.Index, _sm, false);
+                NativeUnclaim(_block.Index, _sm);
+            }
         }
 
         // ---- native interop (implemented in nf-interpreter) ---------------

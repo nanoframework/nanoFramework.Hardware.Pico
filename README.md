@@ -6,14 +6,6 @@
 
 ### Welcome to the .NET **nanoFramework** nanoFramework.Hardware.Pico Library repository
 
-## Build status
-
-| Component | Build Status | NuGet Package |
-|:-|---|---|
-| nanoFramework.Hardware.Pico | [![Build Status](https://dev.azure.com/nanoframework/nanoFramework.Hardware.Pico/_apis/build/status/nanoFramework.Hardware.Pico?repoName=nanoframework%2FnanoFramework.Hardware.Pico&branchName=main)](https://dev.azure.com/nanoframework/nanoFramework.Hardware.Pico/_build/latest?definitionId=TODO&repoName=nanoframework%2FnanoFramework.Hardware.Pico&branchName=main) | [![NuGet](https://img.shields.io/nuget/v/nanoFramework.Hardware.Pico.svg?label=NuGet&style=flat&logo=nuget)](https://www.nuget.org/packages/nanoFramework.Hardware.Pico/)  |
-
-<!-- TODO: replace definitionId=TODO in the Build Status badge above with the Azure DevOps pipeline definition id once the build pipeline for this repo is created. -->
-
 ## Programmable I/O (PIO)
 
 This library provides a managed API for the **Programmable I/O (PIO)** subsystem of the Raspberry Pi Pico family: the RP2040 (Pico 1 / Pico W) and the RP2350 (Pico 2). PIO lets you implement deterministic, hardware-timed digital protocols on dedicated state machines instead of bit-banging them from the CPU.

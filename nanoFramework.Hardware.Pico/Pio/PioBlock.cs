@@ -70,11 +70,18 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <param name="program">The program previously returned by <see cref="AddProgram"/>.</param>
         /// <param name="offset">The load offset the program occupies.</param>
         /// <exception cref="ArgumentNullException"><paramref name="program"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> plus the program length exceeds the 32-word instruction memory.</exception>
         public void RemoveProgram(PioProgram program, uint offset)
         {
             if (program == null)
             {
                 throw new ArgumentNullException(nameof(program));
+            }
+
+            // offset + length must fit the 32-word instruction memory; reject before the uint->int narrowing
+            if (program.Length <= 0 || offset > (uint)(32 - program.Length))
+            {
+                throw new ArgumentOutOfRangeException(nameof(offset));
             }
 
             NativeRemoveProgram(_index, program.Length, (int)offset);
@@ -91,7 +98,7 @@ namespace nanoFramework.Hardware.Pico.Pio
                 throw new InvalidOperationException();
             }
 
-            return new PioStateMachine(this, sm);
+            return new PioStateMachine(this, sm, true);
         }
 
         /// <summary>
@@ -106,7 +113,7 @@ namespace nanoFramework.Hardware.Pico.Pio
                 throw new ArgumentOutOfRangeException(nameof(sm));
             }
 
-            return new PioStateMachine(this, sm);
+            return new PioStateMachine(this, sm, false);
         }
 
         /// <summary>
@@ -177,14 +184,15 @@ namespace nanoFramework.Hardware.Pico.Pio
             {
                 lock (_irqLock)
                 {
+                    // register the handler before arming native delivery so an early IRQ isn't dropped
+                    _interruptCallbacks += value;
+
                     if (_irqDispatcher == null)
                     {
                         _irqDispatcher = new NativeEventDispatcher("PioIrqDriver", (ulong)_index);
                         _irqDispatcher.OnInterrupt += OnNativeIrq;
                         _irqDispatcher.EnableInterrupt();
                     }
-
-                    _interruptCallbacks += value;
                 }
             }
 
