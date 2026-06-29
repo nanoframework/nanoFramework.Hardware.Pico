@@ -326,7 +326,74 @@ namespace nanoFramework.Hardware.Pico.Pio
             }
         }
 
+        /// <summary>
+        /// Reads <paramref name="count"/> words from the RX FIFO into <paramref name="buffer"/> using a
+        /// DMA channel paced by this state machine's RX request. Blocks the calling thread but yields the
+        /// CLR while the transfer runs, so other threads keep running (no busy-wait, no FIFO overflow).
+        /// </summary>
+        /// <param name="buffer">Destination array.</param>
+        /// <param name="offset">Index in <paramref name="buffer"/> at which to start writing.</param>
+        /// <param name="count">Number of 32-bit words to read.</param>
+        /// <param name="timeoutMs">Maximum time to wait, in milliseconds.</param>
+        /// <returns>The number of words actually transferred (less than <paramref name="count"/> on timeout).</returns>
+        /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The range falls outside <paramref name="buffer"/>, or an argument is negative.</exception>
+        /// <exception cref="InvalidOperationException">No DMA channel was free, or a transfer is already running on this state machine.</exception>
+        public int Read(uint[] buffer, int offset, int count, int timeoutMs)
+        {
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(nameof(PioStateMachine));
+            }
+
+            if (buffer == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (offset < 0 || count < 0 || timeoutMs < 0 || count > buffer.Length || offset > buffer.Length - count)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            if (count == 0)
+            {
+                return 0;
+            }
+
+            if (!NativeStartDmaRead(_block.Index, _sm, count))
+            {
+                throw new InvalidOperationException();
+            }
+
+            // Poll for completion while yielding the CLR -- Thread.Sleep gives up the core, so other
+            // managed threads run during the transfer. A production version would wake on the DMA-done IRQ.
+            int waited = 0;
+            while (!NativeDmaReadComplete(_block.Index, _sm))
+            {
+                if (waited >= timeoutMs)
+                {
+                    break;
+                }
+
+                System.Threading.Thread.Sleep(1);
+                waited++;
+            }
+
+            return NativeFinishDmaRead(_block.Index, _sm, buffer, offset);
+        }
+
         #region Native interop (implemented in nf-interpreter)
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private static extern bool NativeStartDmaRead(int block, int sm, int count);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private static extern bool NativeDmaReadComplete(int block, int sm);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private static extern int NativeFinishDmaRead(int block, int sm, uint[] buffer, int offset);
+
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         private static extern void NativeInit(int block, int sm, int offset, uint[] configBlob);
