@@ -6,21 +6,21 @@
 namespace nanoFramework.Hardware.Pico.Pio
 {
     /// <summary>Source operand. The legal subset depends on the instruction (validated at emit time).</summary>
-    public enum PioSrc
+    public enum SourceOperand
     {
         /// <summary>The pins mapped to the instruction's pin group.</summary>
         Pins = 0,
         /// <summary>The scratch register X.</summary>
-        X = 1,
+        RegisterX = 1,
         /// <summary>The scratch register Y.</summary>
-        Y = 2,
+        RegisterY = 2,
         /// <summary>All zeroes.</summary>
         Null = 3,
         /// <summary>The status value (all-ones or all-zeroes per the configured status source).</summary>
         Status = 5,
         /// <summary>The input shift register (ISR).</summary>
-        Isr = 6,
+        InputShiftRegister = 6,
         /// <summary>The output shift register (OSR).</summary>
-        Osr = 7,
+        OutputShiftRegister = 7,
     }
 }

@@ -11,7 +11,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 {
     /// <summary>
     /// Handles a PIO interrupt raised on a block. <paramref name="flags"/> is the bit mask of
-    /// state-machine IRQ flags (0..3) that fired (bit <c>n</c> set means SM-relative <c>irq n</c>).
+    /// state-machine IRQ flags (0..3) that fired (bit <c>n</c> set means state-machine-relative <c>irq n</c>).
     /// </summary>
     public delegate void PioInterruptEventHandler(PioBlock sender, uint flags);
 
@@ -103,8 +103,8 @@ namespace nanoFramework.Hardware.Pico.Pio
 
         /// <summary>
         /// Gets a specific state machine (0..3) on this block. Unlike <see cref="ClaimStateMachine"/>
-        /// this does <em>not</em> mark the SM as claimed, so the caller is responsible for avoiding
-        /// collisions; prefer <see cref="ClaimStateMachine"/> unless a fixed SM index is required.
+        /// this does <em>not</em> mark the state machine as claimed, so the caller is responsible for avoiding
+        /// collisions; prefer <see cref="ClaimStateMachine"/> unless a fixed state machine index is required.
         /// </summary>
         public PioStateMachine StateMachine(int sm)
         {
@@ -223,7 +223,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             }
         }
 
-        // data2 carries the raw SM IRQ flag mask the native driver read from IRQ0_INTS[11:8].
+        // data2 carries the raw state-machine IRQ flag mask the native driver read from IRQ0_INTS[11:8].
         private void OnNativeIrq(uint data1, uint data2, DateTime time)
         {
             PioInterruptEventHandler callbacks = _interruptCallbacks;

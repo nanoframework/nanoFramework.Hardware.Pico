@@ -18,13 +18,13 @@ namespace nanoFramework.Hardware.Pico.Pio
         public int SideSetCount { get; set; } = 0;
 
         /// <summary>Gets or sets a value indicating whether side-set is optional and an enable bit is reserved.</summary>
-        public bool SideSetOpt { get; set; } = false;
+        public bool SideSetOptional { get; set; } = false;
 
         /// <summary>Gets or sets a value indicating whether side-set drives PINDIRS instead of PINS.</summary>
         public bool SideSetPinDirs { get; set; } = false;
 
         /// <summary>Gets or sets the OUT/PULL shift direction.</summary>
-        public PioShiftDir OutShiftDir { get; set; } = PioShiftDir.Right;
+        public ShiftDirection OutShiftDir { get; set; } = ShiftDirection.Right;
 
         /// <summary>Gets or sets a value indicating whether the output shift register auto-pulls when empty.</summary>
         public bool AutoPull { get; set; } = false;
@@ -33,7 +33,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         public int PullThreshold { get; set; } = 32;
 
         /// <summary>Gets or sets the IN/PUSH shift direction.</summary>
-        public PioShiftDir InShiftDir { get; set; } = PioShiftDir.Right;
+        public ShiftDirection InShiftDir { get; set; } = ShiftDirection.Right;
 
         /// <summary>Gets or sets a value indicating whether the input shift register auto-pushes when full.</summary>
         public bool AutoPush { get; set; } = false;

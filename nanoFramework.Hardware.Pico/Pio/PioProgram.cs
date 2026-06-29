@@ -39,13 +39,13 @@ namespace nanoFramework.Hardware.Pico.Pio
         public int SideSetCount { get; private set; }
 
         /// <summary>Whether side-set is optional (an extra enable bit is reserved).</summary>
-        public bool SideSetOpt { get; private set; }
+        public bool SideSetOptional { get; private set; }
 
         /// <summary>Whether side-set targets PINDIRS instead of PINS.</summary>
         public bool SideSetPinDirs { get; private set; }
 
         /// <summary>Out/pull shift direction default.</summary>
-        public PioShiftDir OutShiftDir { get; private set; }
+        public ShiftDirection OutShiftDir { get; private set; }
 
         /// <summary>Whether autopull is enabled by default.</summary>
         public bool AutoPull { get; private set; }
@@ -54,7 +54,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         public int PullThreshold { get; private set; }
 
         /// <summary>IN/push shift direction default.</summary>
-        public PioShiftDir InShiftDir { get; private set; }
+        public ShiftDirection InShiftDir { get; private set; }
 
         /// <summary>Whether autopush is enabled by default.</summary>
         public bool AutoPush { get; private set; }
@@ -74,10 +74,10 @@ namespace nanoFramework.Hardware.Pico.Pio
             int sideSetCount,
             bool sideSetOpt,
             bool sideSetPinDirs,
-            PioShiftDir outShiftDir,
+            ShiftDirection outShiftDir,
             bool autoPull,
             int pullThreshold,
-            PioShiftDir inShiftDir,
+            ShiftDirection inShiftDir,
             bool autoPush,
             int pushThreshold,
             PioVersion version)
@@ -87,7 +87,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             WrapTarget = wrapTarget;
             Origin = origin;
             SideSetCount = sideSetCount;
-            SideSetOpt = sideSetOpt;
+            SideSetOptional = sideSetOpt;
             SideSetPinDirs = sideSetPinDirs;
             OutShiftDir = outShiftDir;
             AutoPull = autoPull;
@@ -156,7 +156,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             if (options.Origin < -1 || options.Origin > 31 ||
                 (options.Origin >= 0 && options.Origin + length > 32) ||
                 options.SideSetCount < 0 || options.SideSetCount > 5 ||
-                options.SideSetCount + (options.SideSetOpt ? 1 : 0) > 5 ||
+                options.SideSetCount + (options.SideSetOptional ? 1 : 0) > 5 ||
                 options.PullThreshold < 1 || options.PullThreshold > 32 ||
                 options.PushThreshold < 1 || options.PushThreshold > 32)
             {
@@ -169,7 +169,7 @@ namespace nanoFramework.Hardware.Pico.Pio
                 wrapTarget,
                 options.Origin,
                 options.SideSetCount,
-                options.SideSetOpt,
+                options.SideSetOptional,
                 options.SideSetPinDirs,
                 options.OutShiftDir,
                 options.AutoPull,

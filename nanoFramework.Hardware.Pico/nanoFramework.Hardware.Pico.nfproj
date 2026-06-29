@@ -43,7 +43,7 @@
     <Compile Include="Pio\PioAssemblerOptions.cs" />
     <Compile Include="Pio\PioBlock.cs" />
     <Compile Include="Pio\PioCondition.cs" />
-    <Compile Include="Pio\PioDest.cs" />
+    <Compile Include="Pio\DestinationOperand.cs" />
     <Compile Include="Pio\PioEncoder.cs" />
     <Compile Include="Pio\PioFifoJoin.cs" />
     <Compile Include="Pio\PioInstructionRef.cs" />
@@ -52,8 +52,8 @@
     <Compile Include="Pio\PioMovStatusSel.cs" />
     <Compile Include="Pio\PioProgram.cs" />
     <Compile Include="Pio\PioProgramOptions.cs" />
-    <Compile Include="Pio\PioShiftDir.cs" />
-    <Compile Include="Pio\PioSrc.cs" />
+    <Compile Include="Pio\ShiftDirection.cs" />
+    <Compile Include="Pio\SourceOperand.cs" />
     <Compile Include="Pio\PioStateMachine.cs" />
     <Compile Include="Pio\PioStateMachineConfig.cs" />
     <Compile Include="Pio\PioVersion.cs" />

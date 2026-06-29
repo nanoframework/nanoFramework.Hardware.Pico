@@ -6,7 +6,7 @@
 namespace nanoFramework.Hardware.Pico.Pio
 {
     /// <summary>Shift direction for the ISR/OSR (and autopush/autopull defaults).</summary>
-    public enum PioShiftDir
+    public enum ShiftDirection
     {
         /// <summary>Shift towards the most-significant bit (left).</summary>
         Left = 0,

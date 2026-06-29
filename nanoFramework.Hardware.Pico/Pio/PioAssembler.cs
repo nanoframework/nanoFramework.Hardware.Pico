@@ -38,10 +38,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         private int _wrap = -1;
         private sbyte _origin = -1;
 
-        private PioShiftDir _outShiftDir = PioShiftDir.Right;
+        private ShiftDirection _outShiftDir = ShiftDirection.Right;
         private bool _autoPull = false;
         private int _pullThreshold = 32;
-        private PioShiftDir _inShiftDir = PioShiftDir.Right;
+        private ShiftDirection _inShiftDir = ShiftDirection.Right;
         private bool _autoPush = false;
         private int _pushThreshold = 32;
 
@@ -67,7 +67,7 @@ namespace nanoFramework.Hardware.Pico.Pio
                 throw new ArgumentException();
             }
 
-            int total = options.SideSetCount + (options.SideSetOpt ? 1 : 0);
+            int total = options.SideSetCount + (options.SideSetOption ? 1 : 0);
             if (total > 5)
             {
                 throw new ArgumentException();
@@ -75,7 +75,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 
             _version = options.Version;
             _sideSetCount = options.SideSetCount;
-            _sideSetOpt = options.SideSetOpt;
+            _sideSetOpt = options.SideSetOption;
             _sideSetPinDirs = options.SideSetPinDirs;
 
             // allocated once for the assembler's lifetime
@@ -183,7 +183,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Default OUT/pull shift behavior (equivalent to pioasm <c>.out</c>).</summary>
-        public void OutShift(PioShiftDir direction, bool autoPull, int threshold)
+        public void OutShift(ShiftDirection direction, bool autoPull, int threshold)
         {
             ValidateThreshold(threshold);
             _outShiftDir = direction;
@@ -192,7 +192,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Default IN/push shift behavior (equivalent to pioasm <c>.in</c>).</summary>
-        public void InShift(PioShiftDir direction, bool autoPush, int threshold)
+        public void InShift(ShiftDirection direction, bool autoPush, int threshold)
         {
             ValidateThreshold(threshold);
             _inShiftDir = direction;
@@ -268,7 +268,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         public PioInstructionRef WaitIrq(bool level, int irq) => Wait(level, PioWaitSource.Irq, irq);
 
         /// <summary>IN &lt;source&gt;, &lt;bitCount&gt; (1..32).</summary>
-        public PioInstructionRef In(PioSrc source, int bitCount)
+        public PioInstructionRef In(SourceOperand source, int bitCount)
         {
             ValidateBitCount(bitCount);
             RequireInSource(source);
@@ -276,7 +276,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Out &lt;dest&gt;, &lt;bitCount&gt; (1..32).</summary>
-        public PioInstructionRef Out(PioDest dest, int bitCount)
+        public PioInstructionRef Out(DestinationOperand dest, int bitCount)
         {
             ValidateBitCount(bitCount);
             RequireOutDest(dest);
@@ -296,13 +296,13 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Mov &lt;dest&gt;, &lt;src&gt;.</summary>
-        public PioInstructionRef Mov(PioDest dest, PioSrc src)
+        public PioInstructionRef Mov(DestinationOperand dest, SourceOperand src)
         {
             return Mov(dest, PioMovOp.None, src);
         }
 
         /// <summary>Mov &lt;dest&gt;, &lt;op&gt; &lt;src&gt;.</summary>
-        public PioInstructionRef Mov(PioDest dest, PioMovOp op, PioSrc src)
+        public PioInstructionRef Mov(DestinationOperand dest, PioMovOp op, SourceOperand src)
         {
             RequireMovDest(dest);
             RequireMovSrc(src);
@@ -371,7 +371,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 
         /// <summary>Set &lt;dest&gt;, &lt;value&gt; (0..31).</summary>
         /// <exception cref="ArgumentException">Set value must be 0..31.</exception>
-        public PioInstructionRef Set(PioDest dest, int value)
+        public PioInstructionRef Set(DestinationOperand dest, int value)
         {
             if (value < 0 || value > 31)
             {
@@ -558,15 +558,15 @@ namespace nanoFramework.Hardware.Pico.Pio
             }
         }
 
-        private static void RequireSetDest(PioDest dest)
+        private static void RequireSetDest(DestinationOperand dest)
         {
-            if (dest != PioDest.Pins && dest != PioDest.X && dest != PioDest.Y && dest != PioDest.PinDirs)
+            if (dest != DestinationOperand.Pins && dest != DestinationOperand.RegisterX && dest != DestinationOperand.RegisterY && dest != DestinationOperand.PinDirs)
             {
                 throw new ArgumentException();
             }
         }
 
-        private static void RequireOutDest(PioDest dest)
+        private static void RequireOutDest(DestinationOperand dest)
         {
             // Pins, X, Y, Null, PinDirs, Pc, Isr, Exec are all valid (every 3-bit code).
             if ((int)dest < 0 || (int)dest > 7)
@@ -575,25 +575,25 @@ namespace nanoFramework.Hardware.Pico.Pio
             }
         }
 
-        private static void RequireInSource(PioSrc source)
+        private static void RequireInSource(SourceOperand source)
         {
-            if (source != PioSrc.Pins && source != PioSrc.X && source != PioSrc.Y &&
-                source != PioSrc.Null && source != PioSrc.Isr && source != PioSrc.Osr)
+            if (source != SourceOperand.Pins && source != SourceOperand.RegisterX && source != SourceOperand.RegisterY &&
+                source != SourceOperand.Null && source != SourceOperand.InputShiftRegister && source != SourceOperand.OutputShiftRegister)
             {
                 throw new ArgumentException();
             }
         }
 
-        private static void RequireMovDest(PioDest dest)
+        private static void RequireMovDest(DestinationOperand dest)
         {
-            if (dest != PioDest.Pins && dest != PioDest.X && dest != PioDest.Y &&
-                dest != PioDest.Exec && dest != PioDest.Pc && dest != PioDest.Isr && dest != PioDest.Osr)
+            if (dest != DestinationOperand.Pins && dest != DestinationOperand.RegisterX && dest != DestinationOperand.RegisterY &&
+                dest != DestinationOperand.Executes && dest != DestinationOperand.Pc && dest != DestinationOperand.InputShiftRegister && dest != DestinationOperand.OutputShiftRegister)
             {
                 throw new ArgumentException();
             }
         }
 
-        private static void RequireMovSrc(PioSrc src)
+        private static void RequireMovSrc(SourceOperand src)
         {
             // Pins, X, Y, Null, Status, Isr, Osr are valid MOV sources.
             if ((int)src < 0 || (int)src > 7)

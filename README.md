@@ -41,13 +41,13 @@ var low = asm.DefineLabel();
 
 asm.MarkLabel(loop);
 asm.Pull();                          // OSR <- TX FIFO
-asm.Mov(PioDest.X, PioSrc.Osr);      // X = delay count
-asm.Set(PioDest.Pins, 1);            // pin high
+asm.Mov(DestinationOperand.RegisterX, SourceOperand.OutputShiftRegister);      // X = delay count
+asm.Set(DestinationOperand.Pins, 1);            // pin high
 asm.MarkLabel(high);
 asm.Jmp(PioCondition.XPostDec, high).Delay(1);
 
-asm.Mov(PioDest.X, PioSrc.Osr);      // reload delay count
-asm.Set(PioDest.Pins, 0);            // pin low
+asm.Mov(DestinationOperand.RegisterX, SourceOperand.OutputShiftRegister);      // reload delay count
+asm.Set(DestinationOperand.Pins, 0);            // pin low
 asm.MarkLabel(low);
 asm.Jmp(PioCondition.XPostDec, low).Delay(1);
 

@@ -88,10 +88,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         private bool _sideSetOpt;
         private bool _sideSetPinDirs;
 
-        private PioShiftDir _outShiftDir = PioShiftDir.Right;
+        private ShiftDirection _outShiftDir = ShiftDirection.Right;
         private bool _autoPull;
         private int _pullThreshold = MaxShiftThreshold;
-        private PioShiftDir _inShiftDir = PioShiftDir.Right;
+        private ShiftDirection _inShiftDir = ShiftDirection.Right;
         private bool _autoPush;
         private int _pushThreshold = MaxShiftThreshold;
 
@@ -140,7 +140,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             cfg._wrapTarget = offset + program.WrapTarget;
             cfg._wrap = offset + program.Wrap;
             cfg._sideSetCount = program.SideSetCount;
-            cfg._sideSetOpt = program.SideSetOpt;
+            cfg._sideSetOpt = program.SideSetOptional;
             cfg._sideSetPinDirs = program.SideSetPinDirs;
             cfg._outShiftDir = program.OutShiftDir;
             cfg._autoPull = program.AutoPull;
@@ -377,10 +377,10 @@ namespace nanoFramework.Hardware.Pico.Pio
             b[IdxSideSetPinDirs] = _sideSetPinDirs ? 1u : 0u;
             b[IdxInBase] = (uint)Rel(_inBase);
             b[IdxJmpPin] = (uint)Rel(_jmpPin);
-            b[IdxOutShiftRight] = _outShiftDir == PioShiftDir.Right ? 1u : 0u;
+            b[IdxOutShiftRight] = _outShiftDir == ShiftDirection.Right ? 1u : 0u;
             b[IdxAutoPull] = _autoPull ? 1u : 0u;
             b[IdxPullThreshold] = (uint)_pullThreshold;
-            b[IdxInShiftRight] = _inShiftDir == PioShiftDir.Right ? 1u : 0u;
+            b[IdxInShiftRight] = _inShiftDir == ShiftDirection.Right ? 1u : 0u;
             b[IdxAutoPush] = _autoPush ? 1u : 0u;
             b[IdxPushThreshold] = (uint)_pushThreshold;
             b[IdxWrapTarget] = (uint)_wrapTarget;

@@ -60,7 +60,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 
         /// <summary>IN &lt;source&gt;, &lt;bitCount&gt; (1..32; 32 encodes as 0).</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="bitCount"/> is outside 1..32.</exception>
-        public static ushort In(PioSrc source, int bitCount)
+        public static ushort In(SourceOperand source, int bitCount)
         {
             if (bitCount < 1 || bitCount > 32)
             {
@@ -72,7 +72,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 
         /// <summary>Out &lt;dest&gt;, &lt;bitCount&gt; (1..32; 32 encodes as 0).</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="bitCount"/> is outside 1..32.</exception>
-        public static ushort Out(PioDest dest, int bitCount)
+        public static ushort Out(DestinationOperand dest, int bitCount)
         {
             if (bitCount < 1 || bitCount > 32)
             {
@@ -95,7 +95,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         }
 
         /// <summary>Mov &lt;dest&gt;, [op] &lt;src&gt;.</summary>
-        public static ushort Mov(PioDest dest, PioMovOp op, PioSrc src)
+        public static ushort Mov(DestinationOperand dest, PioMovOp op, SourceOperand src)
         {
             return (ushort)(OpMov | (((int)dest & 0x7) << 5) | (((int)op & 0x3) << 3) | ((int)src & 0x7));
         }
@@ -155,7 +155,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 
         /// <summary>Set &lt;dest&gt;, &lt;value&gt; (0..31).</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is outside 0..31.</exception>
-        public static ushort Set(PioDest dest, int value)
+        public static ushort Set(DestinationOperand dest, int value)
         {
             if (value < 0 || value > 31)
             {
@@ -168,7 +168,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <summary>Nop is an alias for MOV Y, Y.</summary>
         public static ushort Nop()
         {
-            return Mov(PioDest.Y, PioMovOp.None, PioSrc.Y);
+            return Mov(DestinationOperand.RegisterY, PioMovOp.None, SourceOperand.RegisterY);
         }
 
         /// <summary>

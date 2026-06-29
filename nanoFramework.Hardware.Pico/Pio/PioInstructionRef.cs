@@ -7,7 +7,7 @@ namespace nanoFramework.Hardware.Pico.Pio
 {
     /// <summary>
     /// A handle to the just-emitted instruction, used to attach a delay and/or a
-    /// side-set value fluently: <c>asm.Set(PioDest.Pins, 1).Side(1).Delay(7);</c>.
+    /// side-set value fluently: <c>asm.Set(DestinationOperand.Pins, 1).Side(1).Delay(7);</c>.
     /// Validation of the values happens at <see cref="PioAssembler.Build"/>.
     /// </summary>
     /// <remarks>

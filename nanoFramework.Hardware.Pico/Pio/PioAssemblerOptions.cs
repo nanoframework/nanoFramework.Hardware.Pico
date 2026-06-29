@@ -15,7 +15,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         public int SideSetCount { get; set; } = 0;
 
         /// <summary>Gets or sets a value indicating whether side-set is optional and an enable bit is reserved.</summary>
-        public bool SideSetOpt { get; set; } = false;
+        public bool SideSetOption { get; set; } = false;
 
         /// <summary>Gets or sets a value indicating whether side-set drives PINDIRS instead of PINS.</summary>
         public bool SideSetPinDirs { get; set; } = false;

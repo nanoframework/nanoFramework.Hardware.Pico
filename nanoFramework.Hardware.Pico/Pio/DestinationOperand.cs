@@ -6,16 +6,16 @@
 namespace nanoFramework.Hardware.Pico.Pio
 {
     /// <summary>Destination operand. The legal subset depends on the instruction (validated at emit time).</summary>
-    public enum PioDest
+    public enum DestinationOperand
     {
         /// <summary>The pins mapped to the instruction's pin group.</summary>
         Pins = 0,
         /// <summary>The scratch register X.</summary>
-        X = 1,
+        RegisterX = 1,
         /// <summary>The scratch register Y.</summary>
-        Y = 2,
+        RegisterY = 2,
         /// <summary>Discards the data (writes nowhere).</summary>
-        Null = 3,
+        DiscardsData = 3,
         /// <summary>The pin direction registers for the mapped pins.</summary>
         PinDirs = 4,
         /// <summary>The program counter (an unconditional jump).</summary>
@@ -23,10 +23,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <summary>The status value (shares the encoding of <see cref="Pc"/>).</summary>
         Status = 5,
         /// <summary>The input shift register (ISR).</summary>
-        Isr = 6,
+        InputShiftRegister = 6,
         /// <summary>The output shift register (OSR).</summary>
-        Osr = 7,
-        /// <summary>Executes the value as an instruction (shares the encoding of <see cref="Osr"/>).</summary>
-        Exec = 7,
+        OutputShiftRegister = 7,
+        /// <summary>Executes the value as an instruction (shares the encoding of <see cref="OutputShiftRegister"/>).</summary>
+        Executes = 7,
     }
 }
