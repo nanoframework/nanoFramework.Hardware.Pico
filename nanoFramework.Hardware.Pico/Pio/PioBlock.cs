@@ -54,7 +54,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             if (program == null)
             {
-                throw new ArgumentNullException(nameof(program));
+                throw new ArgumentNullException();
             }
 
             int offset = NativeAddProgram(_index, program.Instructions, program.Length, program.Origin);
@@ -75,13 +75,13 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             if (program == null)
             {
-                throw new ArgumentNullException(nameof(program));
+                throw new ArgumentNullException();
             }
 
             // offset + length must fit the 32-word instruction memory; reject before the uint->int narrowing
             if (program.Length <= 0 || offset > (uint)(32 - program.Length))
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                throw new ArgumentOutOfRangeException();
             }
 
             NativeRemoveProgram(_index, program.Length, (int)offset);
@@ -110,7 +110,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             if (sm < 0 || sm > 3)
             {
-                throw new ArgumentOutOfRangeException(nameof(sm));
+                throw new ArgumentOutOfRangeException();
             }
 
             return new PioStateMachine(this, sm, false);
@@ -126,7 +126,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             // native side enforces the per-chip GPIO ceiling
             if (pin < 0 || pin > 47)
             {
-                throw new ArgumentOutOfRangeException(nameof(pin));
+                throw new ArgumentOutOfRangeException();
             }
 
             NativeInitGpio(_index, pin);
@@ -141,7 +141,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             // validate the whole span first, so a bad range can't leave the block partly routed
             if (basePin < 0 || count < 0 || count > 48 || basePin > 48 - count)
             {
-                throw new ArgumentOutOfRangeException(nameof(basePin));
+                throw new ArgumentOutOfRangeException();
             }
 
             for (int i = 0; i < count; i++)
@@ -155,7 +155,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             if (irq < 0 || irq > 7)
             {
-                throw new ArgumentOutOfRangeException(nameof(irq));
+                throw new ArgumentOutOfRangeException();
             }
 
             NativeForceIrq(_index, irq);
@@ -166,7 +166,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             if (irq < 0 || irq > 7)
             {
-                throw new ArgumentOutOfRangeException(nameof(irq));
+                throw new ArgumentOutOfRangeException();
             }
 
             NativeClearIrq(_index, irq);

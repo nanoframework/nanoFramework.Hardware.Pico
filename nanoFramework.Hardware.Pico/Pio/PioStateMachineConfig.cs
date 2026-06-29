@@ -72,6 +72,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <summary>Blob index of the inline OUT enable bit selector.</summary>
         public const int IdxOutEnSel = 26;
 
+        // the shift threshold spans the full 32-bit shift register; the clock divider integer defaults to 1 (no division)
+        private const int MaxShiftThreshold = 32;
+        private const int DefaultClockDivInt = 1;
+
         private int _outBase, _outCount;
         private int _setBase, _setCount;
         private int _sideSetBase;
@@ -86,15 +90,15 @@ namespace nanoFramework.Hardware.Pico.Pio
 
         private PioShiftDir _outShiftDir = PioShiftDir.Right;
         private bool _autoPull;
-        private int _pullThreshold = 32;
+        private int _pullThreshold = MaxShiftThreshold;
         private PioShiftDir _inShiftDir = PioShiftDir.Right;
         private bool _autoPush;
-        private int _pushThreshold = 32;
+        private int _pushThreshold = MaxShiftThreshold;
 
         private int _wrapTarget;
         private int _wrap;
 
-        private int _clkDivInt = 1;
+        private int _clkDivInt = DefaultClockDivInt;
         private int _clkDivFrac;
 
         private PioFifoJoin _fifoJoin = PioFifoJoin.None;
@@ -118,6 +122,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <paramref name="offset"/>: wrap/side-set/shift defaults are taken from the
         /// program (matching the SDK's <c>*_program_get_default_config</c>).
         /// </summary>
+        /// <exception cref="ArgumentNullException"><paramref name="program"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Offset must be 0..31.</exception>
         public static PioStateMachineConfig FromProgram(PioProgram program, int offset)
         {

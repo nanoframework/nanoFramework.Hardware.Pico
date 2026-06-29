@@ -24,8 +24,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         private readonly bool[] _sideUsed;
         private readonly PioLabel[] _jmpLabel; // non-null slot => resolve a JMP target at Build
 
-        private int _count;       // instructions emitted (may exceed 32 so Build can report it)
-        private int _labelCount;  // ids handed out by DefineLabel
+        // instructions emitted (may exceed 32 so Build can report it)
+        private int _count;
+        // ids handed out by DefineLabel
+        private int _labelCount;
 
         private readonly PioVersion _version;
         private readonly int _sideSetCount;
@@ -202,13 +204,13 @@ namespace nanoFramework.Hardware.Pico.Pio
 
         #region Instructions
 
-        /// <summary>JMP &lt;label&gt; (unconditional).</summary>
+        /// <summary>Jmp &lt;label&gt; (unconditional).</summary>
         public PioInstructionRef Jmp(PioLabel target)
         {
             return Jmp(PioCondition.Always, target);
         }
 
-        /// <summary>JMP &lt;cond&gt; &lt;label&gt;.</summary>
+        /// <summary>Jmp &lt;cond&gt; &lt;label&gt;.</summary>
         /// <exception cref="ArgumentNullException"><paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="target"/> belongs to another assembler.</exception>
         public PioInstructionRef Jmp(PioCondition condition, PioLabel target)
@@ -232,7 +234,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             return new PioInstructionRef(this, index);
         }
 
-        /// <summary>JMP to an absolute program offset.</summary>
+        /// <summary>Jmp to an absolute program offset.</summary>
         /// <exception cref="ArgumentException">Jump address must be 0..31.</exception>
         public PioInstructionRef Jmp(PioCondition condition, int address)
         {
@@ -244,7 +246,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             return new PioInstructionRef(this, Add(PioEncoder.Jmp(condition, address)));
         }
 
-        /// <summary>WAIT &lt;polarity&gt; &lt;source&gt; &lt;index&gt;.</summary>
+        /// <summary>Wait &lt;polarity&gt; &lt;source&gt; &lt;index&gt;.</summary>
         /// <exception cref="ArgumentException">Wait index must be 0..31.</exception>
         public PioInstructionRef Wait(bool polarity, PioWaitSource source, int index)
         {
@@ -256,13 +258,13 @@ namespace nanoFramework.Hardware.Pico.Pio
             return new PioInstructionRef(this, Add(PioEncoder.Wait(polarity, source, index)));
         }
 
-        /// <summary>WAIT for an absolute GPIO to reach <paramref name="level"/>.</summary>
+        /// <summary>Wait for an absolute GPIO to reach <paramref name="level"/>.</summary>
         public PioInstructionRef WaitGpio(bool level, int gpio) => Wait(level, PioWaitSource.Gpio, gpio);
 
-        /// <summary>WAIT for an IN-base-relative pin to reach <paramref name="level"/>.</summary>
+        /// <summary>Wait for an IN-base-relative pin to reach <paramref name="level"/>.</summary>
         public PioInstructionRef WaitPin(bool level, int pin) => Wait(level, PioWaitSource.Pin, pin);
 
-        /// <summary>WAIT for IRQ flag <paramref name="irq"/> (0..7) to reach <paramref name="level"/>.</summary>
+        /// <summary>Wait for IRQ flag <paramref name="irq"/> (0..7) to reach <paramref name="level"/>.</summary>
         public PioInstructionRef WaitIrq(bool level, int irq) => Wait(level, PioWaitSource.Irq, irq);
 
         /// <summary>IN &lt;source&gt;, &lt;bitCount&gt; (1..32).</summary>
@@ -273,7 +275,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             return new PioInstructionRef(this, Add(PioEncoder.In(source, bitCount)));
         }
 
-        /// <summary>OUT &lt;dest&gt;, &lt;bitCount&gt; (1..32).</summary>
+        /// <summary>Out &lt;dest&gt;, &lt;bitCount&gt; (1..32).</summary>
         public PioInstructionRef Out(PioDest dest, int bitCount)
         {
             ValidateBitCount(bitCount);
@@ -281,25 +283,25 @@ namespace nanoFramework.Hardware.Pico.Pio
             return new PioInstructionRef(this, Add(PioEncoder.Out(dest, bitCount)));
         }
 
-        /// <summary>PUSH [iffull] [block].</summary>
+        /// <summary>Push [iffull] [block].</summary>
         public PioInstructionRef Push(bool ifFull = false, bool block = true)
         {
             return new PioInstructionRef(this, Add(PioEncoder.Push(ifFull, block)));
         }
 
-        /// <summary>PULL [ifempty] [block].</summary>
+        /// <summary>Pull [ifempty] [block].</summary>
         public PioInstructionRef Pull(bool ifEmpty = false, bool block = true)
         {
             return new PioInstructionRef(this, Add(PioEncoder.Pull(ifEmpty, block)));
         }
 
-        /// <summary>MOV &lt;dest&gt;, &lt;src&gt;.</summary>
+        /// <summary>Mov &lt;dest&gt;, &lt;src&gt;.</summary>
         public PioInstructionRef Mov(PioDest dest, PioSrc src)
         {
             return Mov(dest, PioMovOp.None, src);
         }
 
-        /// <summary>MOV &lt;dest&gt;, &lt;op&gt; &lt;src&gt;.</summary>
+        /// <summary>Mov &lt;dest&gt;, &lt;op&gt; &lt;src&gt;.</summary>
         public PioInstructionRef Mov(PioDest dest, PioMovOp op, PioSrc src)
         {
             RequireMovDest(dest);
@@ -367,7 +369,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             return new PioInstructionRef(this, Add(PioEncoder.Irq(clear, wait, index)));
         }
 
-        /// <summary>SET &lt;dest&gt;, &lt;value&gt; (0..31).</summary>
+        /// <summary>Set &lt;dest&gt;, &lt;value&gt; (0..31).</summary>
         /// <exception cref="ArgumentException">Set value must be 0..31.</exception>
         public PioInstructionRef Set(PioDest dest, int value)
         {
@@ -380,7 +382,7 @@ namespace nanoFramework.Hardware.Pico.Pio
             return new PioInstructionRef(this, Add(PioEncoder.Set(dest, value)));
         }
 
-        /// <summary>NOP (alias of MOV Y, Y).</summary>
+        /// <summary>Nop (alias of MOV Y, Y).</summary>
         public PioInstructionRef Nop()
         {
             return new PioInstructionRef(this, Add(PioEncoder.Nop()));

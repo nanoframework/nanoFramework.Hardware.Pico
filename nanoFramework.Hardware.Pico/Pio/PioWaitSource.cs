@@ -5,7 +5,7 @@
 
 namespace nanoFramework.Hardware.Pico.Pio
 {
-    /// <summary>WAIT polarity source.</summary>
+    /// <summary>Wait polarity source.</summary>
     public enum PioWaitSource
     {
         /// <summary>Absolute GPIO index.</summary>

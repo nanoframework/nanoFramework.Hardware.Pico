@@ -53,16 +53,19 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public void Init(uint offset, PioStateMachineConfig config)
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
 
             if (config == null)
             {
-                throw new ArgumentNullException(nameof(config));
+                throw new ArgumentNullException();
             }
 
             if (offset > 31)
             {
-                throw new ArgumentOutOfRangeException(nameof(offset));
+                throw new ArgumentOutOfRangeException();
             }
 
             NativeInit(_block.Index, _sm, (int)offset, config.ToBlob());
@@ -78,7 +81,10 @@ namespace nanoFramework.Hardware.Pico.Pio
             get { return _enabled; }
             set
             {
-                if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+                if (_disposed)
+                {
+                    throw new ObjectDisposedException(null);
+                }
                 _enabled = value;
                 NativeSetEnabled(_block.Index, _sm, value);
             }
@@ -88,12 +94,18 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public void Put(uint value)
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
 
             while (NativeTxFull(_block.Index, _sm))
             {
                 System.Threading.Thread.Sleep(0);
-                if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+                if (_disposed)
+                {
+                    throw new ObjectDisposedException(null);
+                }
             }
 
             NativePutBlocking(_block.Index, _sm, value);
@@ -103,30 +115,42 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public uint Get()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
 
             while (NativeRxEmpty(_block.Index, _sm))
             {
                 System.Threading.Thread.Sleep(0);
-                if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+                if (_disposed)
+                {
+                    throw new ObjectDisposedException(null);
+                }
             }
 
             return NativeGetBlocking(_block.Index, _sm);
         }
 
-        /// <summary>True when the TX FIFO cannot accept another word.</summary>
+        /// <summary><see langword="true"/> when the TX FIFO cannot accept another word; otherwise, <see langword="false"/>.</summary>
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public bool IsTxFull()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
             return NativeTxFull(_block.Index, _sm);
         }
 
-        /// <summary>True when the RX FIFO has no words to read.</summary>
+        /// <summary><see langword="true"/> when the RX FIFO has no words to read; otherwise, <see langword="false"/>.</summary>
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public bool IsRxEmpty()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
             return NativeRxEmpty(_block.Index, _sm);
         }
 
@@ -134,7 +158,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public uint GetTxLevel()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
             return NativeTxLevel(_block.Index, _sm);
         }
 
@@ -142,7 +169,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public uint GetRxLevel()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
             return NativeRxLevel(_block.Index, _sm);
         }
 
@@ -150,7 +180,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public uint GetProgramCounter()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
             return NativeGetPc(_block.Index, _sm);
         }
 
@@ -163,7 +196,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public bool TryPut(uint value)
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
 
             if (NativeTxFull(_block.Index, _sm))
             {
@@ -181,7 +217,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public bool TryGet(out uint value)
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
 
             if (NativeRxEmpty(_block.Index, _sm))
             {
@@ -197,7 +236,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public void ClearFifos()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
             NativeClearFifos(_block.Index, _sm);
         }
 
@@ -208,7 +250,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public void DrainTxFifo()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
             NativeDrainTxFifo(_block.Index, _sm);
         }
 
@@ -219,7 +264,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public void Restart()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
             NativeRestart(_block.Index, _sm);
         }
 
@@ -230,7 +278,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public void ClockDivRestart()
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
             NativeClkDivRestart(_block.Index, _sm);
         }
 
@@ -240,7 +291,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public void SetClockDivisor(float div)
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
 
             // closed-range test so NaN (which fails every ordered comparison) is rejected too
             if (!(div >= 1.0f && div <= 65536.0f))
@@ -267,7 +321,10 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public void Exec(ushort instruction)
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
             NativeExec(_block.Index, _sm, instruction);
         }
 
@@ -284,12 +341,15 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="ObjectDisposedException">The state machine has been disposed.</exception>
         public void SetConsecutivePinDirs(int basePin, int count, bool output)
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(PioStateMachine));
+            if (_disposed)
+            {
+                throw new ObjectDisposedException(null);
+            }
 
             // native side enforces the per-chip GPIO ceiling
             if (basePin < 0 || basePin > 47 || count < 0 || count > 48 - basePin)
             {
-                throw new ArgumentOutOfRangeException(nameof(basePin));
+                throw new ArgumentOutOfRangeException();
             }
 
             NativeSetConsecutivePinDirs(_block.Index, _sm, basePin, count, output);
@@ -344,7 +404,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             if (_disposed)
             {
-                throw new ObjectDisposedException(nameof(PioStateMachine));
+                throw new ObjectDisposedException(null);
             }
 
             if (buffer == null)

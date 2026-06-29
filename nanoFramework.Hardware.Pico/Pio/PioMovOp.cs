@@ -5,7 +5,7 @@
 
 namespace nanoFramework.Hardware.Pico.Pio
 {
-    /// <summary>MOV operation applied to the source before writing the destination.</summary>
+    /// <summary>Mov operation applied to the source before writing the destination.</summary>
     public enum PioMovOp
     {
         /// <summary>No operation — the source is copied unchanged.</summary>

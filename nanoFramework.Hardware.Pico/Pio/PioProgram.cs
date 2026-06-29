@@ -44,7 +44,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <summary>Whether side-set targets PINDIRS instead of PINS.</summary>
         public bool SideSetPinDirs { get; private set; }
 
-        /// <summary>OUT/pull shift direction default.</summary>
+        /// <summary>Out/pull shift direction default.</summary>
         public PioShiftDir OutShiftDir { get; private set; }
 
         /// <summary>Whether autopull is enabled by default.</summary>
@@ -132,12 +132,12 @@ namespace nanoFramework.Hardware.Pico.Pio
         {
             if (instructions == null)
             {
-                throw new ArgumentNullException(nameof(instructions));
+                throw new ArgumentNullException();
             }
 
             if (options == null)
             {
-                throw new ArgumentNullException(nameof(options));
+                throw new ArgumentNullException();
             }
 
             int length = instructions.Length;

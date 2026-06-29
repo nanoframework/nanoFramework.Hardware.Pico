@@ -5,7 +5,7 @@
 
 namespace nanoFramework.Hardware.Pico.Pio
 {
-    /// <summary>JMP condition (3-bit field).</summary>
+    /// <summary>Jmp condition (3-bit field).</summary>
     public enum PioCondition
     {
         /// <summary>Always jump (unconditional).</summary>

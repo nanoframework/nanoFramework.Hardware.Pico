@@ -31,7 +31,7 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <summary>Gets or sets the program offset where the label was marked, or -1 if not yet bound.</summary>
         internal int Address { get; set; }
 
-        /// <summary>True once the label has been placed in the instruction stream.</summary>
+        /// <summary>Gets <see langword="true"/> once the label has been placed in the instruction stream; otherwise, <see langword="false"/>.</summary>
         public bool IsBound
         {
             get

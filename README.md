@@ -10,7 +10,7 @@
 
 This library provides a managed API for the **Programmable I/O (PIO)** subsystem of the Raspberry Pi Pico family: the RP2040 (Pico 1 / Pico W) and the RP2350 (Pico 2). PIO lets you implement deterministic, hardware-timed digital protocols on dedicated state machines instead of bit-banging them from the CPU.
 
-The API mirrors the Pico SDK's PIO model while staying idiomatic C#:
+The API mirrors the [Pico SDK](https://www.raspberrypi.com/documentation/pico-sdk/)'s PIO model while staying idiomatic C#:
 
 * `PioAssembler` — an inline assembler that builds a PIO program from fluent instruction calls (`Jmp`, `Wait`, `In`, `Out`, `Set`, `Mov`, `Push`, `Pull`, `Irq`, `Nop`, ...) with labels, side-set and delay support.
 * `PioProgram` — a fully assembled program (encoded instructions plus wrap, side-set and shift metadata) produced by `PioAssembler.Build()`. You can also wrap externally produced opcodes (for example from the stand-alone `pioasm` tool) with `PioProgram.FromEncoded`.
