@@ -402,11 +402,6 @@ namespace nanoFramework.Hardware.Pico.Pio
         /// <exception cref="InvalidOperationException">No DMA channel was free, or a transfer is already running on this state machine.</exception>
         public int Read(uint[] buffer, int offset, int count, int timeoutMs)
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(null);
-            }
-
             if (buffer == null)
             {
                 throw new ArgumentNullException();
@@ -422,37 +417,15 @@ namespace nanoFramework.Hardware.Pico.Pio
                 return 0;
             }
 
-            if (!NativeStartDmaRead(_block.Index, _sm, count))
-            {
-                throw new InvalidOperationException();
-            }
-
-            // Poll for completion while yielding the CLR -- Thread.Sleep gives up the core, so other
-            // managed threads run during the transfer. A production version would wake on the DMA-done IRQ.
-            int waited = 0;
-            while (!NativeDmaReadComplete(_block.Index, _sm))
-            {
-                if (waited >= timeoutMs)
-                {
-                    break;
-                }
-
-                System.Threading.Thread.Sleep(1);
-                waited++;
-            }
-
-            return NativeFinishDmaRead(_block.Index, _sm, buffer, offset);
+            // Single native call: sets up the transfer, parks this thread on the PIO event so the CLR yields,
+            // and resumes on the completion IRQ to copy the result -- no busy-wait, no FIFO overflow. The
+            // native handler validates the claim state and throws if the state machine has been disposed.
+            return NativeRead(_block.Index, _sm, buffer, offset, count, timeoutMs);
         }
 
         #region Native interop (implemented in nf-interpreter)
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private static extern bool NativeStartDmaRead(int block, int sm, int count);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private static extern bool NativeDmaReadComplete(int block, int sm);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private static extern int NativeFinishDmaRead(int block, int sm, uint[] buffer, int offset);
+        private static extern int NativeRead(int block, int sm, uint[] buffer, int offset, int count, int timeoutMs);
 
 
         [MethodImpl(MethodImplOptions.InternalCall)]
