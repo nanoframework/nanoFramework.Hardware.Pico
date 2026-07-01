@@ -265,7 +265,16 @@ namespace nanoFramework.Hardware.Pico.Pio
         public PioInstructionRef WaitPin(bool level, int pin) => Wait(level, PioWaitSource.Pin, pin);
 
         /// <summary>Wait for IRQ flag <paramref name="irq"/> (0..7) to reach <paramref name="level"/>.</summary>
-        public PioInstructionRef WaitIrq(bool level, int irq) => Wait(level, PioWaitSource.Irq, irq);
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="irq"/> is not in the range 0..7.</exception>
+        public PioInstructionRef WaitIrq(bool level, int irq)
+        {
+            if (irq < 0 || irq > 7)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            return Wait(level, PioWaitSource.Irq, irq);
+        }
 
         /// <summary>IN &lt;source&gt;, &lt;bitCount&gt; (1..32).</summary>
         public PioInstructionRef In(SourceOperand source, int bitCount)
